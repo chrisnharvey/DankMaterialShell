@@ -149,57 +149,57 @@ Rectangle {
             color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.1)
         }
 
-        StyledText {
-            text: I18n.tr("Notification Timeouts")
-            font.pixelSize: Theme.fontSizeSmall
-            font.weight: Font.Medium
-            color: Theme.surfaceVariantText
-        }
-
-        DankDropdown {
-            text: I18n.tr("Low Priority")
-            description: "Timeout for low priority notifications"
-            currentValue: getTimeoutText(SettingsData.notificationTimeoutLow)
-            options: timeoutOptions.map(opt => opt.text)
-            onValueChanged: value => {
-                                for (let i = 0; i < timeoutOptions.length; i++) {
-                                    if (timeoutOptions[i].text === value) {
-                                        SettingsData.setNotificationTimeoutLow(timeoutOptions[i].value)
-                                        break
-                                    }
-                                }
-                            }
-        }
-
-        DankDropdown {
-            text: I18n.tr("Normal Priority")
-            description: "Timeout for normal priority notifications"
-            currentValue: getTimeoutText(SettingsData.notificationTimeoutNormal)
-            options: timeoutOptions.map(opt => opt.text)
-            onValueChanged: value => {
-                                for (let i = 0; i < timeoutOptions.length; i++) {
-                                    if (timeoutOptions[i].text === value) {
-                                        SettingsData.setNotificationTimeoutNormal(timeoutOptions[i].value)
-                                        break
-                                    }
-                                }
-                            }
-        }
-
-        DankDropdown {
-            text: I18n.tr("Critical Priority")
-            description: "Timeout for critical priority notifications"
-            currentValue: getTimeoutText(SettingsData.notificationTimeoutCritical)
-            options: timeoutOptions.map(opt => opt.text)
-            onValueChanged: value => {
-                                for (let i = 0; i < timeoutOptions.length; i++) {
-                                    if (timeoutOptions[i].text === value) {
-                                        SettingsData.setNotificationTimeoutCritical(timeoutOptions[i].value)
-                                        break
-                                    }
-                                }
-                            }
-        }
+        // StyledText {
+        //     text: I18n.tr("Notification Timeouts")
+        //     font.pixelSize: Theme.fontSizeSmall
+        //     font.weight: Font.Medium
+        //     color: Theme.surfaceVariantText
+        // }
+        //
+        // DankDropdown {
+        //     text: I18n.tr("Low Priority")
+        //     description: "Timeout for low priority notifications"
+        //     currentValue: getTimeoutText(SettingsData.notificationTimeoutLow)
+        //     options: timeoutOptions.map(opt => opt.text)
+        //     onValueChanged: value => {
+        //                         for (let i = 0; i < timeoutOptions.length; i++) {
+        //                             if (timeoutOptions[i].text === value) {
+        //                                 SettingsData.setNotificationTimeoutLow(timeoutOptions[i].value)
+        //                                 break
+        //                             }
+        //                         }
+        //                     }
+        // }
+        //
+        // DankDropdown {
+        //     text: I18n.tr("Normal Priority")
+        //     description: "Timeout for normal priority notifications"
+        //     currentValue: getTimeoutText(SettingsData.notificationTimeoutNormal)
+        //     options: timeoutOptions.map(opt => opt.text)
+        //     onValueChanged: value => {
+        //                         for (let i = 0; i < timeoutOptions.length; i++) {
+        //                             if (timeoutOptions[i].text === value) {
+        //                                 SettingsData.setNotificationTimeoutNormal(timeoutOptions[i].value)
+        //                                 break
+        //                             }
+        //                         }
+        //                     }
+        // }
+        //
+        // DankDropdown {
+        //     text: I18n.tr("Critical Priority")
+        //     description: "Timeout for critical priority notifications"
+        //     currentValue: getTimeoutText(SettingsData.notificationTimeoutCritical)
+        //     options: timeoutOptions.map(opt => opt.text)
+        //     onValueChanged: value => {
+        //                         for (let i = 0; i < timeoutOptions.length; i++) {
+        //                             if (timeoutOptions[i].text === value) {
+        //                                 SettingsData.setNotificationTimeoutCritical(timeoutOptions[i].value)
+        //                                 break
+        //                             }
+        //                         }
+        //                     }
+        // }
 
         Rectangle {
             width: parent.width
