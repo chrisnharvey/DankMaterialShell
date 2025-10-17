@@ -139,7 +139,7 @@ DankPopout {
                             tabs.push({ icon: "wb_sunny", text: I18n.tr("Weather") })
                         }
                         
-                        tabs.push({ icon: "settings", text: I18n.tr("Settings"), isAction: true })
+                        // tabs.push({ icon: "settings", text: I18n.tr("Settings"), isAction: true })
                         return tabs
                     }
 

@@ -90,17 +90,17 @@ Rectangle {
             onClicked: root.powerButtonClicked()
         }
 
-        DankActionButton {
-            buttonSize: 36
-            iconName: "settings"
-            iconSize: Theme.iconSize - 4
-            iconColor: Theme.surfaceText
-            backgroundColor: "transparent"
-            onClicked: {
-                root.settingsButtonClicked()
-                settingsModal.show()
-            }
-        }
+        // DankActionButton {
+        //     buttonSize: 36
+        //     iconName: "settings"
+        //     iconSize: Theme.iconSize - 4
+        //     iconColor: Theme.surfaceText
+        //     backgroundColor: "transparent"
+        //     onClicked: {
+        //         root.settingsButtonClicked()
+        //         settingsModal.show()
+        //     }
+        // }
 
         DankActionButton {
             buttonSize: 36
