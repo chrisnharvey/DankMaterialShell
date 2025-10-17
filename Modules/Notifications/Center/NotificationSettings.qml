@@ -200,12 +200,12 @@ Rectangle {
         //                         }
         //                     }
         // }
-
-        Rectangle {
-            width: parent.width
-            height: 1
-            color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.1)
-        }
+        //
+        // Rectangle {
+        //     width: parent.width
+        //     height: 1
+        //     color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.1)
+        // }
 
         Item {
             width: parent.width
