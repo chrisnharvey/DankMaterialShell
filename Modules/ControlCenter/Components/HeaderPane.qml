@@ -102,13 +102,13 @@ Rectangle {
         //     }
         // }
 
-        DankActionButton {
-            buttonSize: 36
-            iconName: editMode ? "done" : "edit"
-            iconSize: Theme.iconSize - 4
-            iconColor: editMode ? Theme.primary : Theme.surfaceText
-            backgroundColor: "transparent"
-            onClicked: root.editModeToggled()
-        }
+        // DankActionButton {
+        //     buttonSize: 36
+        //     iconName: editMode ? "done" : "edit"
+        //     iconSize: Theme.iconSize - 4
+        //     iconColor: editMode ? Theme.primary : Theme.surfaceText
+        //     backgroundColor: "transparent"
+        //     onClicked: root.editModeToggled()
+        // }
     }
 }
