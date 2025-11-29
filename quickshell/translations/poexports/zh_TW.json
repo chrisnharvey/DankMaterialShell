@@ -1,6 +1,18 @@
 {
+  "%1 adapter(s), none connected": {
+    "%1 adapter(s), none connected": ""
+  },
   "%1 characters": {
     "%1 characters": "%1 個字元"
+  },
+  "%1 connected": {
+    "%1 connected": ""
+  },
+  "%1 display(s)": {
+    "%1 display(s)": ""
+  },
+  "%1 widgets": {
+    "%1 widgets": ""
   },
   "(Unnamed)": {
     "(Unnamed)": "(未命名)"
@@ -44,14 +56,35 @@
   "Actions": {
     "Actions": "選項"
   },
+  "Activate": {
+    "Activate": ""
+  },
+  "Active": {
+    "Active": ""
+  },
+  "Active: ": {
+    "Active: ": ""
+  },
+  "Active: None": {
+    "Active: None": ""
+  },
+  "Adapters": {
+    "Adapters": ""
+  },
   "Add": {
     "Add": "新增"
+  },
+  "Add Bar": {
+    "Add Bar": ""
   },
   "Add Widget": {
     "Add Widget": "新增部件"
   },
   "Add Widget to ": {
     "Add Widget to ": "新增部件到 "
+  },
+  "Add Widget to %1 Section": {
+    "Add Widget to %1 Section": ""
   },
   "Add a VPN in NetworkManager": {
     "Add a VPN in NetworkManager": "新增VPN至網路管理器"
@@ -82,6 +115,9 @@
   },
   "Animation Speed": {
     "Animation Speed": "動畫速度"
+  },
+  "Anonymous Identity": {
+    "Anonymous Identity": ""
   },
   "Anonymous Identity (optional)": {
     "Anonymous Identity (optional)": "匿名身分 (可選)"
@@ -125,6 +161,9 @@
   "Are you sure you want to suspend the system?": {
     "Are you sure you want to suspend the system?": "你確定要暫停系統嗎?"
   },
+  "Audio": {
+    "Audio": ""
+  },
   "Audio Codec": {
     "Audio Codec": "音訊編解碼器"
   },
@@ -140,8 +179,17 @@
   "Audio Output Devices (": {
     "Audio Output Devices (": "音訊輸出設備 ("
   },
+  "Auth": {
+    "Auth": ""
+  },
+  "Auth Type": {
+    "Auth Type": ""
+  },
   "Authenticate": {
     "Authenticate": "驗證"
+  },
+  "Authentication": {
+    "Authentication": ""
   },
   "Authentication Required": {
     "Authentication Required": "需要驗證"
@@ -158,6 +206,9 @@
   "Authorize service for ": {
     "Authorize service for ": "授權服務 "
   },
+  "Auto": {
+    "Auto": ""
+  },
   "Auto Location": {
     "Auto Location": "自動定位"
   },
@@ -172,6 +223,9 @@
   },
   "Auto-saving...": {
     "Auto-saving...": "自動保存..."
+  },
+  "Autoconnect": {
+    "Autoconnect": ""
   },
   "Autoconnect disabled": {
     "Autoconnect disabled": "自動連線關閉"
@@ -215,17 +269,32 @@
   "Available Layouts": {
     "Available Layouts": "可用佈局"
   },
+  "Available Networks": {
+    "Available Networks": ""
+  },
   "Available Plugins": {
     "Available Plugins": "可用的插件"
   },
   "Available Screens (": {
     "Available Screens (": "可用的螢幕 ("
   },
+  "BSSID": {
+    "BSSID": ""
+  },
   "Back": {
     "Back": "返回"
   },
+  "Backend": {
+    "Backend": ""
+  },
   "Balanced palette with focused accents (default).": {
     "Balanced palette with focused accents (default).": "顏色平衡且帶有重點點綴的調色板 (預設)。"
+  },
+  "Bar Configurations": {
+    "Bar Configurations": ""
+  },
+  "Bar Transparency": {
+    "Bar Transparency": ""
   },
   "Battery": {
     "Battery": "電池"
@@ -235,6 +304,9 @@
   },
   "Bind lock screen to dbus signals from loginctl. Disable if using an external lock screen": {
     "Bind lock screen to dbus signals from loginctl. Disable if using an external lock screen": "將鎖定畫面綁定到 loginctl 的 dbus 訊號。如果使用外部鎖屏，請停用"
+  },
+  "Bluetooth": {
+    "Bluetooth": ""
   },
   "Bluetooth Icon": {
     "Bluetooth Icon": "藍芽圖示"
@@ -326,11 +398,23 @@
   "Center Tiling": {
     "Center Tiling": "居中平鋪"
   },
+  "Certificate Password": {
+    "Certificate Password": ""
+  },
+  "Change bar appearance": {
+    "Change bar appearance": ""
+  },
   "Changes:": {
     "Changes:": "變更："
   },
+  "Channel": {
+    "Channel": ""
+  },
   "Check for system updates": {
     "Check for system updates": "檢查系統更新"
+  },
+  "Choose Color": {
+    "Choose Color": ""
   },
   "Choose Launcher Logo Color": {
     "Choose Launcher Logo Color": "選擇啟動器 Logo 顏色"
@@ -338,17 +422,26 @@
   "Choose icon": {
     "Choose icon": "選擇圖示"
   },
+  "Choose the background color for widgets": {
+    "Choose the background color for widgets": ""
+  },
   "Choose the border accent color": {
     "Choose the border accent color": "選擇邊框強調色"
   },
   "Choose the logo displayed on the launcher button in DankBar": {
     "Choose the logo displayed on the launcher button in DankBar": "選擇 DankBar 啟動器按鈕上顯示的 logo"
   },
+  "Choose the widget outline accent color": {
+    "Choose the widget outline accent color": ""
+  },
   "Choose where notification popups appear on screen": {
     "Choose where notification popups appear on screen": "選擇通知彈出視窗在螢幕上出現的位置"
   },
   "Choose where on-screen displays appear on screen": {
     "Choose where on-screen displays appear on screen": "選擇螢幕顯示出現在螢幕上的位置"
+  },
+  "Cipher": {
+    "Cipher": ""
   },
   "Clear": {
     "Clear": "清除"
@@ -358,6 +451,9 @@
   },
   "Clear All History?": {
     "Clear All History?": "清除所有紀錄?"
+  },
+  "Click Import to add a .ovpn or .conf": {
+    "Click Import to add a .ovpn or .conf": ""
   },
   "Clipboard History": {
     "Clipboard History": "剪貼簿歷史"
@@ -373,6 +469,9 @@
   },
   "Close": {
     "Close": "關閉"
+  },
+  "Close Overview on Launch": {
+    "Close Overview on Launch": ""
   },
   "Color Override": {
     "Color Override": "顏色覆蓋"
@@ -442,6 +541,9 @@
   },
   "Connect to Wi-Fi": {
     "Connect to Wi-Fi": "連線到 Wi-Fi"
+  },
+  "Connected": {
+    "Connected": ""
   },
   "Connected Displays": {
     "Connected Displays": "已連接的螢幕"
@@ -590,6 +692,12 @@
   "Del: Clear • Shift+Del: Clear All • 1-9: Actions • F10: Help • Esc: Close": {
     "Del: Clear • Shift+Del: Clear All • 1-9: Actions • F10: Help • Esc: Close": "Del: 清除 • Shift+Del: 清除所有 • 1-9: 動作 • F10: 幫助 • Esc: 關閉"
   },
+  "Delete": {
+    "Delete": ""
+  },
+  "Delete VPN": {
+    "Delete VPN": ""
+  },
   "Derives colors that closely match the underlying image.": {
     "Derives colors that closely match the underlying image.": "提取與底層圖像高度匹配的顏色。"
   },
@@ -614,6 +722,9 @@
   "Disconnect": {
     "Disconnect": "斷開連線"
   },
+  "Disconnected": {
+    "Disconnected": ""
+  },
   "Disconnected from WiFi": {
     "Disconnected from WiFi": "已中斷 WiFi 連線"
   },
@@ -625,6 +736,9 @@
   },
   "Dismiss": {
     "Dismiss": "忽略"
+  },
+  "Display Assignment": {
+    "Display Assignment": ""
   },
   "Display Name Format": {
     "Display Name Format": "顯示名稱格式"
@@ -643,6 +757,9 @@
   },
   "Display currently focused application title": {
     "Display currently focused application title": "顯示目前焦點應用程式的標題"
+  },
+  "Display only workspaces that contain windows": {
+    "Display only workspaces that contain windows": ""
   },
   "Display power menu actions in a grid instead of a list": {
     "Display power menu actions in a grid instead of a list": "以網格而非列表顯示電源選單操作"
@@ -686,6 +803,9 @@
   "Drag widgets to reorder within sections. Use the eye icon to hide/show widgets (maintains spacing), or X to remove them completely.": {
     "Drag widgets to reorder within sections. Use the eye icon to hide/show widgets (maintains spacing), or X to remove them completely.": "拖曳部件即可在版塊內重新排序。使用眼睛圖示隱藏/顯示部件 (會保持間距)，或使用 X 將其完全移除。"
   },
+  "Driver": {
+    "Driver": ""
+  },
   "Duplicate Wallpaper with Blur": {
     "Duplicate Wallpaper with Blur": "模糊化重複桌布"
   },
@@ -706,6 +826,9 @@
   },
   "Enable Autoconnect": {
     "Enable Autoconnect": "啟用自動連線"
+  },
+  "Enable Bar": {
+    "Enable Bar": ""
   },
   "Enable GPU Temperature": {
     "Enable GPU Temperature": "啟用 GPU 溫度"
@@ -767,8 +890,14 @@
   "Enter this passkey on ": {
     "Enter this passkey on ": ""
   },
+  "Enterprise": {
+    "Enterprise": ""
+  },
   "Error": {
     "Error": "錯誤"
+  },
+  "Ethernet": {
+    "Ethernet": ""
   },
   "Exclusive Zone Offset": {
     "Exclusive Zone Offset": "獨佔區域偏移"
@@ -778,6 +907,12 @@
   },
   "F1/I: Toggle • F10: Help": {
     "F1/I: Toggle • F10: Help": "F1/I: 切換 • F10: 幫助"
+  },
+  "Fade grace period": {
+    "Fade grace period": ""
+  },
+  "Fade to lock screen": {
+    "Fade to lock screen": ""
   },
   "Failed to activate configuration": {
     "Failed to activate configuration": "無法啟動配置"
@@ -794,6 +929,9 @@
   "Failed to connect to ": {
     "Failed to connect to ": "無法連線到 "
   },
+  "Failed to delete VPN": {
+    "Failed to delete VPN": ""
+  },
   "Failed to disconnect VPN": {
     "Failed to disconnect VPN": "無法斷開 VPN"
   },
@@ -805,6 +943,12 @@
   },
   "Failed to enable WiFi": {
     "Failed to enable WiFi": "無法啟用 WiFi"
+  },
+  "Failed to import VPN": {
+    "Failed to import VPN": ""
+  },
+  "Failed to load VPN config": {
+    "Failed to load VPN config": ""
   },
   "Failed to pause printer": {
     "Failed to pause printer": "無法暫停印表機"
@@ -823,6 +967,9 @@
   },
   "Failed to start connection to ": {
     "Failed to start connection to ": "無法啟動連線到 "
+  },
+  "Failed to update VPN": {
+    "Failed to update VPN": ""
   },
   "Failed to update autoconnect": {
     "Failed to update autoconnect": "自動連線更新失敗"
@@ -866,6 +1013,9 @@
   "Force terminal applications to always use dark color schemes": {
     "Force terminal applications to always use dark color schemes": "強制終端應用程式始終使用深色配色方案"
   },
+  "Forget": {
+    "Forget": ""
+  },
   "Forget Device": {
     "Forget Device": "忘記設備"
   },
@@ -877,6 +1027,9 @@
   },
   "Format Legend": {
     "Format Legend": "格式說明"
+  },
+  "Frequency": {
+    "Frequency": ""
   },
   "Fun": {
     "Fun": "有趣的"
@@ -910,6 +1063,9 @@
   },
   "Goth Corners": {
     "Goth Corners": "圓角介面融合"
+  },
+  "Gradually fade the screen before locking with a configurable grace period": {
+    "Gradually fade the screen before locking with a configurable grace period": ""
   },
   "Graphics": {
     "Graphics": "圖形"
@@ -953,6 +1109,18 @@
   "High-fidelity palette that preserves source hues.": {
     "High-fidelity palette that preserves source hues.": "保留來源色調的高保真調色板。"
   },
+  "Hold Duration": {
+    "Hold Duration": ""
+  },
+  "Hold longer to confirm": {
+    "Hold longer to confirm": ""
+  },
+  "Hold to Confirm Power Actions": {
+    "Hold to Confirm Power Actions": ""
+  },
+  "Hold to confirm (%1s)": {
+    "Hold to confirm (%1s)": ""
+  },
   "Hour": {
     "Hour": "小時"
   },
@@ -964,6 +1132,12 @@
   },
   "I Understand": {
     "I Understand": "我了解"
+  },
+  "IP": {
+    "IP": ""
+  },
+  "IP Address:": {
+    "IP Address:": ""
   },
   "Icon Size": {
     "Icon Size": "圖示大小"
@@ -989,6 +1163,12 @@
   "Image": {
     "Image": "圖片"
   },
+  "Import": {
+    "Import": ""
+  },
+  "Import VPN": {
+    "Import VPN": ""
+  },
   "Include Transitions": {
     "Include Transitions": "包括過渡"
   },
@@ -1001,6 +1181,9 @@
   "Individual Batteries": {
     "Individual Batteries": "獨立電池"
   },
+  "Individual bar configuration": {
+    "Individual bar configuration": ""
+  },
   "Inhibit idle timeout when audio or video is playing": {
     "Inhibit idle timeout when audio or video is playing": "當音訊或視訊播放時禁止閒置逾時"
   },
@@ -1009,6 +1192,9 @@
   },
   "Install plugins from the DMS plugin registry": {
     "Install plugins from the DMS plugin registry": "從 DMS 插件註冊表安裝插件"
+  },
+  "Interface:": {
+    "Interface:": ""
   },
   "Interlock Open": {
     "Interlock Open": "聯鎖開啟"
@@ -1028,8 +1214,14 @@
   "Jobs: ": {
     "Jobs: ": "工作: "
   },
+  "Keep Awake": {
+    "Keep Awake": ""
+  },
   "Keep Changes": {
     "Keep Changes": "保留變更"
+  },
+  "Keeping Awake": {
+    "Keeping Awake": ""
   },
   "Keyboard Layout Name": {
     "Keyboard Layout Name": "鍵盤布局名稱"
@@ -1091,6 +1283,9 @@
   "Loading plugins...": {
     "Loading plugins...": "讀取插件..."
   },
+  "Loading...": {
+    "Loading...": ""
+  },
   "Location Search": {
     "Location Search": "位置搜尋"
   },
@@ -1118,8 +1313,17 @@
   "Low Priority": {
     "Low Priority": "低優先級"
   },
+  "MAC": {
+    "MAC": ""
+  },
+  "MTU": {
+    "MTU": ""
+  },
   "Manage and configure plugins for extending DMS functionality": {
     "Manage and configure plugins for extending DMS functionality": "管理和配置用於擴展 DMS 功能的插件"
+  },
+  "Manage up to 4 independent bar configurations. Each bar has its own position, widgets, styling, and display assignment.": {
+    "Manage up to 4 independent bar configurations. Each bar has its own position, widgets, styling, and display assignment.": ""
   },
   "Manual Coordinates": {
     "Manual Coordinates": "手動設定座標"
@@ -1184,6 +1388,9 @@
   "Media Players (": {
     "Media Players (": "媒體播放 ("
   },
+  "Media Volume OSD": {
+    "Media Volume OSD": ""
+  },
   "Memory": {
     "Memory": "記憶體"
   },
@@ -1199,11 +1406,17 @@
   "Microphone Mute OSD": {
     "Microphone Mute OSD": "麥克風靜音 OSD"
   },
+  "Middle Section": {
+    "Middle Section": ""
+  },
   "Minimal palette built around a single hue.": {
     "Minimal palette built around a single hue.": "圍繞單一色調構建的最小調色板。"
   },
   "Minute": {
     "Minute": "分鐘"
+  },
+  "Mode": {
+    "Mode": ""
   },
   "Mode:": {
     "Mode:": "模式:"
@@ -1265,6 +1478,9 @@
   "Network Speed Monitor": {
     "Network Speed Monitor": "網速監視"
   },
+  "Network Status": {
+    "Network Status": ""
+  },
   "Network download and upload speed display": {
     "Network download and upload speed display": "顯示網路下載跟上傳速度"
   },
@@ -1283,6 +1499,9 @@
   "Night Temperature": {
     "Night Temperature": "夜間色溫"
   },
+  "No": {
+    "No": ""
+  },
   "No Active Players": {
     "No Active Players": "無播放器"
   },
@@ -1295,11 +1514,17 @@
   "No Media": {
     "No Media": "無媒體"
   },
+  "No VPN profiles": {
+    "No VPN profiles": ""
+  },
   "No VPN profiles found": {
     "No VPN profiles found": "未找到 VPN 設定檔"
   },
   "No Weather Data Available": {
     "No Weather Data Available": "沒有氣象數據"
+  },
+  "No adapters": {
+    "No adapters": ""
   },
   "No clipboard entries found": {
     "No clipboard entries found": "剪貼簿無內容"
@@ -1327,6 +1552,9 @@
   },
   "Normal Priority": {
     "Normal Priority": "普通優先級"
+  },
+  "Not connected": {
+    "Not connected": ""
   },
   "Notepad": {
     "Notepad": "筆記本"
@@ -1403,6 +1631,15 @@
   "Other": {
     "Other": "其他"
   },
+  "Outline Color": {
+    "Outline Color": ""
+  },
+  "Outline Opacity": {
+    "Outline Opacity": ""
+  },
+  "Outline Thickness": {
+    "Outline Thickness": ""
+  },
   "Output Area Almost Full": {
     "Output Area Almost Full": "輸出區域即將滿載"
   },
@@ -1415,8 +1652,14 @@
   "Overview": {
     "Overview": "概覽"
   },
+  "Overview of your network connections": {
+    "Overview of your network connections": ""
+  },
   "Overwrite": {
     "Overwrite": "覆寫"
+  },
+  "PIN": {
+    "PIN": ""
   },
   "Padding": {
     "Padding": "內距"
@@ -1481,6 +1724,9 @@
   "Play sounds for system events": {
     "Play sounds for system events": "播放系統事件的音效"
   },
+  "Playback": {
+    "Playback": ""
+  },
   "Plugged In": {
     "Plugged In": "已插入"
   },
@@ -1532,6 +1778,9 @@
   "Power Profile OSD": {
     "Power Profile OSD": "電源設定檔 OSD"
   },
+  "Preference": {
+    "Preference": ""
+  },
   "Pressure": {
     "Pressure": "氣壓"
   },
@@ -1547,6 +1796,9 @@
   "Print Server not available": {
     "Print Server not available": "列印伺服器無法使用"
   },
+  "Printer": {
+    "Printer": ""
+  },
   "Printers": {
     "Printers": "印表機"
   },
@@ -1555,6 +1807,9 @@
   },
   "Privacy Indicator": {
     "Privacy Indicator": "隱私指示器"
+  },
+  "Private Key Password": {
+    "Private Key Password": ""
   },
   "Process": {
     "Process": "程序"
@@ -1567,6 +1822,9 @@
   },
   "Profile image is too large. Please use a smaller image.": {
     "Profile image is too large. Please use a smaller image.": "個人資料圖片太大。請使用較小的圖片。"
+  },
+  "Protocol": {
+    "Protocol": ""
   },
   "Quick access to application launcher": {
     "Quick access to application launcher": "快速存取應用程式啟動器"
@@ -1585,6 +1843,9 @@
   },
   "Rain Chance": {
     "Rain Chance": "降雨機率"
+  },
+  "Rate": {
+    "Rate": ""
   },
   "Reason": {
     "Reason": "原因"
@@ -1612,6 +1873,9 @@
   },
   "Request confirmation on power off, restart, suspend, hibernate and logout actions": {
     "Request confirmation on power off, restart, suspend, hibernate and logout actions": "請求確認關機、重新啟動、暫停、休眠和登出操作"
+  },
+  "Require holding button/key to confirm power off, restart, suspend, hibernate and logout": {
+    "Require holding button/key to confirm power off, restart, suspend, hibernate and logout": ""
   },
   "Requires DWL compositor": {
     "Requires DWL compositor": "需要 DWL 混成器"
@@ -1670,8 +1934,14 @@
   "Save Notepad File": {
     "Save Notepad File": "儲存記事本"
   },
+  "Save password": {
+    "Save password": ""
+  },
   "Saved": {
     "Saved": "已儲存"
+  },
+  "Saved Configurations": {
+    "Saved Configurations": ""
   },
   "Scale DankBar font sizes independently": {
     "Scale DankBar font sizes independently": "獨立縮放 DankBar 字體大小"
@@ -1681,6 +1951,9 @@
   },
   "Scan": {
     "Scan": "掃描"
+  },
+  "Scanning...": {
+    "Scanning...": ""
   },
   "Science": {
     "Science": "科學"
@@ -1703,11 +1976,20 @@
   "Search plugins...": {
     "Search plugins...": "搜尋插件..."
   },
+  "Search widgets...": {
+    "Search widgets...": ""
+  },
   "Search...": {
     "Search...": "搜尋..."
   },
   "Searching...": {
     "Searching...": "搜尋中..."
+  },
+  "Secured": {
+    "Secured": ""
+  },
+  "Security": {
+    "Security": ""
   },
   "Select Launcher Logo": {
     "Select Launcher Logo": "選擇啟動器 Logo"
@@ -1720,6 +2002,9 @@
   },
   "Select a widget to add to the ": {
     "Select a widget to add to the ": "選擇一個部件加到 "
+  },
+  "Select a widget to add. You can add multiple instances of the same widget if needed.": {
+    "Select a widget to add. You can add multiple instances of the same widget if needed.": ""
   },
   "Select an image file...": {
     "Select an image file...": "選擇一張圖片..."
@@ -1750,6 +2035,9 @@
   },
   "Separator": {
     "Separator": "分隔符"
+  },
+  "Server": {
+    "Server": ""
   },
   "Set different wallpapers for each connected monitor": {
     "Set different wallpapers for each connected monitor": "為每個連接的螢幕設定不同的桌布"
@@ -1783,6 +2071,9 @@
   },
   "Show Log Out": {
     "Show Log Out": "顯示登出"
+  },
+  "Show Occupied Workspaces Only": {
+    "Show Occupied Workspaces Only": ""
   },
   "Show Power Actions": {
     "Show Power Actions": "顯示電源選項"
@@ -1829,6 +2120,9 @@
   "Show on-screen display when idle inhibitor state changes": {
     "Show on-screen display when idle inhibitor state changes": "閒置抑制器狀態改變時顯示螢幕顯示"
   },
+  "Show on-screen display when media player volume changes": {
+    "Show on-screen display when media player volume changes": ""
+  },
   "Show on-screen display when microphone is muted/unmuted": {
     "Show on-screen display when microphone is muted/unmuted": "麥克風靜音/取消靜音時顯示螢幕顯示"
   },
@@ -1874,6 +2168,12 @@
   "Shutdown": {
     "Shutdown": "關機"
   },
+  "Signal": {
+    "Signal": ""
+  },
+  "Signal:": {
+    "Signal:": ""
+  },
   "Size": {
     "Size": "大小"
   },
@@ -1892,6 +2192,9 @@
   "Spacing": {
     "Spacing": "間距"
   },
+  "Speed": {
+    "Speed": ""
+  },
   "Spool Area Full": {
     "Spool Area Full": "緩衝區已滿"
   },
@@ -1903,6 +2206,9 @@
   },
   "Start typing your notes here...": {
     "Start typing your notes here...": "從這裡開始輸入您的筆記..."
+  },
+  "State": {
+    "State": ""
   },
   "Status": {
     "Status": "狀態"
@@ -2051,6 +2357,12 @@
   "Toggle top bar visibility manually (can be controlled via IPC)": {
     "Toggle top bar visibility manually (can be controlled via IPC)": "手動切換頂部欄可見性 (可透過 IPC 控制)"
   },
+  "Toggle visibility of this bar configuration": {
+    "Toggle visibility of this bar configuration": ""
+  },
+  "Toggling...": {
+    "Toggling...": ""
+  },
   "Tomorrow": {
     "Tomorrow": "明天"
   },
@@ -2075,8 +2387,14 @@
   "Turn off monitors after": {
     "Turn off monitors after": "關閉螢幕之後"
   },
+  "Unavailable": {
+    "Unavailable": ""
+  },
   "Uninstall Plugin": {
     "Uninstall Plugin": "解除安裝插件"
+  },
+  "Unknown": {
+    "Unknown": ""
   },
   "Unpin from Dock": {
     "Unpin from Dock": "取消 Dock 釘選"
@@ -2165,6 +2483,18 @@
   "VPN Connections": {
     "VPN Connections": "VPN 連線"
   },
+  "VPN Password": {
+    "VPN Password": ""
+  },
+  "VPN configuration updated": {
+    "VPN configuration updated": ""
+  },
+  "VPN deleted": {
+    "VPN deleted": ""
+  },
+  "VPN imported: ": {
+    "VPN imported: ": ""
+  },
   "VPN status and quick connect": {
     "VPN status and quick connect": "VPN 狀態和快速連線"
   },
@@ -2204,6 +2534,9 @@
   "Volume, brightness, and other system OSDs": {
     "Volume, brightness, and other system OSDs": "音量、亮度及其他系統OSD"
   },
+  "WPA/WPA2": {
+    "WPA/WPA2": ""
+  },
   "Wallpaper": {
     "Wallpaper": "桌布"
   },
@@ -2231,6 +2564,15 @@
   "When enabled, apps are sorted alphabetically. When disabled, apps are sorted by usage frequency.": {
     "When enabled, apps are sorted alphabetically. When disabled, apps are sorted by usage frequency.": "啟用後，應用程式將按字母順序排序。禁用後，應用程式將按使用頻率排序。"
   },
+  "Wi-Fi Password": {
+    "Wi-Fi Password": ""
+  },
+  "WiFi": {
+    "WiFi": ""
+  },
+  "WiFi Device": {
+    "WiFi Device": ""
+  },
   "WiFi disabled": {
     "WiFi disabled": "關閉 WiFi"
   },
@@ -2240,11 +2582,23 @@
   "WiFi is off": {
     "WiFi is off": "WiFi 關閉"
   },
+  "Widget Background Color": {
+    "Widget Background Color": ""
+  },
   "Widget Management": {
     "Widget Management": "部件管理"
   },
+  "Widget Outline": {
+    "Widget Outline": ""
+  },
+  "Widget Style": {
+    "Widget Style": ""
+  },
   "Widget Styling": {
     "Widget Styling": "部件樣式"
+  },
+  "Widget Transparency": {
+    "Widget Transparency": ""
   },
   "Widgets": {
     "Widgets": "部件"
@@ -2267,6 +2621,9 @@
   "Workspace Switcher": {
     "Workspace Switcher": "工作區切換器"
   },
+  "Yes": {
+    "Yes": ""
+  },
   "You have unsaved changes. Save before closing this tab?": {
     "You have unsaved changes. Save before closing this tab?": "您有未儲存的變更。是否要儲存？"
   },
@@ -2278,6 +2635,12 @@
   },
   "You have unsaved changes. Save before opening a file?": {
     "You have unsaved changes. Save before opening a file?": "您有未儲存的變更。是否先保存再開檔案？"
+  },
+  "custom theme file browser title": {
+    "Select Custom Theme": ""
+  },
+  "dark mode wallpaper file browser title | light mode wallpaper file browser title | wallpaper file browser title": {
+    "Select Wallpaper": ""
   },
   "events": {
     "events": "活動"
@@ -2291,8 +2654,20 @@
   "official": {
     "official": "官方"
   },
+  "profile image file browser title": {
+    "Select Profile Image": ""
+  },
+  "settings window title": {
+    "Settings": ""
+  },
+  "sysmon window title": {
+    "System Monitor": ""
+  },
   "update dms for NM integration.": {
     "update dms for NM integration.": "更新 dms 以進行 NM 整合。"
+  },
+  "wallpaper directory file browser title": {
+    "Select Wallpaper Directory": ""
   },
   "• Install only from trusted sources": {
     "• Install only from trusted sources": "• 僅從受信任的來源安裝"

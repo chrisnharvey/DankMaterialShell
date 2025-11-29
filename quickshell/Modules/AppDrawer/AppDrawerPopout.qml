@@ -15,41 +15,24 @@ DankPopout {
 
     layerNamespace: "dms:app-launcher"
 
-    property var triggerScreen: null
-
     function show() {
         open()
     }
 
-    function setTriggerPosition(x, y, width, section, screen) {
-        triggerX = x
-        triggerY = y
-        triggerWidth = width
-        triggerSection = section
-        triggerScreen = screen
-    }
-
     popupWidth: 520
     popupHeight: 600
-    triggerX: Theme.spacingL
-    triggerY: Math.max(26 + SettingsData.dankBarInnerPadding + 4, Theme.barHeight - 4 - (8 - SettingsData.dankBarInnerPadding)) + SettingsData.dankBarSpacing + SettingsData.dankBarBottomGap - 2
     triggerWidth: 40
     positioning: ""
-    screen: triggerScreen
 
     onBackgroundClicked: close()
 
-    onShouldBeVisibleChanged: {
-        if (shouldBeVisible) {
-            appLauncher.searchQuery = ""
-            appLauncher.selectedIndex = 0
-            appLauncher.setCategory(I18n.tr("All"))
-            Qt.callLater(() => {
-                             if (contentLoader.item && contentLoader.item.searchField) {
-                                 contentLoader.item.searchField.text = ""
-                                 contentLoader.item.searchField.forceActiveFocus()
-                             }
-                         })
+    onOpened: {
+        appLauncher.searchQuery = ""
+        appLauncher.selectedIndex = 0
+        appLauncher.setCategory(I18n.tr("All"))
+        if (contentLoader.item?.searchField) {
+            contentLoader.item.searchField.text = ""
+            contentLoader.item.searchField.forceActiveFocus()
         }
     }
 
@@ -766,7 +749,7 @@ DankPopout {
             }
 
             Rectangle {
-                visible: SessionService.hasPrimeRun
+                visible: SessionService.nvidiaCommand
                 width: parent.width - Theme.spacingS * 2
                 height: 5
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -781,11 +764,11 @@ DankPopout {
             }
 
             Rectangle {
-                visible: SessionService.hasPrimeRun
+                visible: SessionService.nvidiaCommand
                 width: parent.width
                 height: 32
                 radius: Theme.cornerRadius
-                color: primeRunMouseArea.containsMouse ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12) : "transparent"
+                color: nvidiaMouseArea.containsMouse ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12) : "transparent"
 
                 Row {
                     anchors.left: parent.left
@@ -811,7 +794,7 @@ DankPopout {
                 }
 
                 MouseArea {
-                    id: primeRunMouseArea
+                    id: nvidiaMouseArea
 
                     anchors.fill: parent
                     hoverEnabled: true
