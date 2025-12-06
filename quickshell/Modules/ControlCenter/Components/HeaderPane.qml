@@ -8,10 +8,10 @@ Rectangle {
 
     property bool editMode: false
 
-    signal powerButtonClicked
-    signal lockRequested
-    signal editModeToggled
-    signal settingsButtonClicked
+        signal powerButtonClicked
+        signal lockRequested
+        signal editModeToggled
+        signal settingsButtonClicked
 
     Component.onCompleted: DgopService.addRef("system")
     Component.onDestruction: DgopService.removeRef("system")
@@ -91,25 +91,25 @@ Rectangle {
             onClicked: root.powerButtonClicked()
         }
 
-        DankActionButton {
-            buttonSize: 36
-            iconName: "settings"
-            iconSize: Theme.iconSize - 4
-            iconColor: Theme.surfaceText
-            backgroundColor: "transparent"
-            onClicked: {
-                root.settingsButtonClicked();
-                PopoutService.focusOrToggleSettings();
-            }
-        }
+        // DankActionButton {
+        //     buttonSize: 36
+        //     iconName: "settings"
+        //     iconSize: Theme.iconSize - 4
+        //     iconColor: Theme.surfaceText
+        //     backgroundColor: "transparent"
+        //     onClicked: {
+        //         root.settingsButtonClicked();
+        //        PopoutService.focusOrToggleSettings();
+        //     }
+        // }
 
-        DankActionButton {
-            buttonSize: 36
-            iconName: editMode ? "done" : "edit"
-            iconSize: Theme.iconSize - 4
-            iconColor: editMode ? Theme.primary : Theme.surfaceText
-            backgroundColor: "transparent"
-            onClicked: root.editModeToggled()
-        }
+        // DankActionButton {
+        //     buttonSize: 36
+        //     iconName: editMode ? "done" : "edit"
+        //     iconSize: Theme.iconSize - 4
+        //     iconColor: editMode ? Theme.primary : Theme.surfaceText
+        //     backgroundColor: "transparent"
+        //     onClicked: root.editModeToggled()
+        // }
     }
 }

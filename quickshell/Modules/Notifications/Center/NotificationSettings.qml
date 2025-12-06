@@ -37,42 +37,42 @@ Rectangle {
     }
 
     readonly property var timeoutOptions: [{
-            "text": "Never",
-            "value": 0
-        }, {
-            "text": "1 second",
-            "value": 1000
-        }, {
-            "text": "3 seconds",
-            "value": 3000
-        }, {
-            "text": "5 seconds",
-            "value": 5000
-        }, {
-            "text": "8 seconds",
-            "value": 8000
-        }, {
-            "text": "10 seconds",
-            "value": 10000
-        }, {
-            "text": "15 seconds",
-            "value": 15000
-        }, {
-            "text": "30 seconds",
-            "value": 30000
-        }, {
-            "text": "1 minute",
-            "value": 60000
-        }, {
-            "text": "2 minutes",
-            "value": 120000
-        }, {
-            "text": "5 minutes",
-            "value": 300000
-        }, {
-            "text": "10 minutes",
-            "value": 600000
-        }]
+        "text": "Never",
+        "value": 0
+    }, {
+        "text": "1 second",
+        "value": 1000
+    }, {
+        "text": "3 seconds",
+        "value": 3000
+    }, {
+        "text": "5 seconds",
+        "value": 5000
+    }, {
+        "text": "8 seconds",
+        "value": 8000
+    }, {
+        "text": "10 seconds",
+        "value": 10000
+    }, {
+        "text": "15 seconds",
+        "value": 15000
+    }, {
+        "text": "30 seconds",
+        "value": 30000
+    }, {
+        "text": "1 minute",
+        "value": 60000
+    }, {
+        "text": "2 minutes",
+        "value": 120000
+    }, {
+        "text": "5 minutes",
+        "value": 300000
+    }, {
+        "text": "10 minutes",
+        "value": 600000
+    }]
 
     function getTimeoutText(value) {
         if (value === undefined || value === null || isNaN(value)) {
@@ -149,57 +149,57 @@ Rectangle {
             color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.1)
         }
 
-        StyledText {
-            text: I18n.tr("Notification Timeouts")
-            font.pixelSize: Theme.fontSizeSmall
-            font.weight: Font.Medium
-            color: Theme.surfaceVariantText
-        }
-
-        DankDropdown {
-            text: I18n.tr("Low Priority")
-            description: "Timeout for low priority notifications"
-            currentValue: getTimeoutText(SettingsData.notificationTimeoutLow)
-            options: timeoutOptions.map(opt => opt.text)
-            onValueChanged: value => {
-                                for (let i = 0; i < timeoutOptions.length; i++) {
-                                    if (timeoutOptions[i].text === value) {
-                                        SettingsData.set("notificationTimeoutLow", timeoutOptions[i].value)
-                                        break
-                                    }
-                                }
-                            }
-        }
-
-        DankDropdown {
-            text: I18n.tr("Normal Priority")
-            description: "Timeout for normal priority notifications"
-            currentValue: getTimeoutText(SettingsData.notificationTimeoutNormal)
-            options: timeoutOptions.map(opt => opt.text)
-            onValueChanged: value => {
-                                for (let i = 0; i < timeoutOptions.length; i++) {
-                                    if (timeoutOptions[i].text === value) {
-                                        SettingsData.set("notificationTimeoutNormal", timeoutOptions[i].value)
-                                        break
-                                    }
-                                }
-                            }
-        }
-
-        DankDropdown {
-            text: I18n.tr("Critical Priority")
-            description: "Timeout for critical priority notifications"
-            currentValue: getTimeoutText(SettingsData.notificationTimeoutCritical)
-            options: timeoutOptions.map(opt => opt.text)
-            onValueChanged: value => {
-                                for (let i = 0; i < timeoutOptions.length; i++) {
-                                    if (timeoutOptions[i].text === value) {
-                                        SettingsData.set("notificationTimeoutCritical", timeoutOptions[i].value)
-                                        break
-                                    }
-                                }
-                            }
-        }
+        // StyledText {
+        //     text: I18n.tr("Notification Timeouts")
+        //     font.pixelSize: Theme.fontSizeSmall
+        //     font.weight: Font.Medium
+        //     color: Theme.surfaceVariantText
+        // }
+        //
+        // DankDropdown {
+        //     text: I18n.tr("Low Priority")
+        //     description: "Timeout for low priority notifications"
+        //     currentValue: getTimeoutText(SettingsData.notificationTimeoutLow)
+        //     options: timeoutOptions.map(opt => opt.text)
+        //     onValueChanged: value => {
+        //         for (let i = 0; i < timeoutOptions.length; i++) {
+        //             if (timeoutOptions[i].text === value) {
+        //                 SettingsData.set("notificationTimeoutLow", timeoutOptions[i].value)
+        //                 break
+        //             }
+        //         }
+        //     }
+        // }
+        //
+        // DankDropdown {
+        //     text: I18n.tr("Normal Priority")
+        //     description: "Timeout for normal priority notifications"
+        //     currentValue: getTimeoutText(SettingsData.notificationTimeoutNormal)
+        //     options: timeoutOptions.map(opt => opt.text)
+        //     onValueChanged: value => {
+        //         for (let i = 0; i < timeoutOptions.length; i++) {
+        //             if (timeoutOptions[i].text === value) {
+        //                 SettingsData.set("notificationTimeoutNormal", timeoutOptions[i].value)
+        //                 break
+        //             }
+        //         }
+        //     }
+        // }
+        //
+        // DankDropdown {
+        //     text: I18n.tr("Critical Priority")
+        //     description: "Timeout for critical priority notifications"
+        //     currentValue: getTimeoutText(SettingsData.notificationTimeoutCritical)
+        //     options: timeoutOptions.map(opt => opt.text)
+        //     onValueChanged: value => {
+        //         for (let i = 0; i < timeoutOptions.length; i++) {
+        //             if (timeoutOptions[i].text === value) {
+        //                 SettingsData.set("notificationTimeoutCritical", timeoutOptions[i].value)
+        //                 break
+        //             }
+        //         }
+        //     }
+        // }
 
         Rectangle {
             width: parent.width
