@@ -15,7 +15,6 @@ Item {
     required property var hyprKeybindsModalLoader
     required property var dankBarRepeater
     required property var hyprlandOverviewLoader
-    required property var settingsModal
 
     function getFirstBar() {
         if (!root.dankBarRepeater || root.dankBarRepeater.count === 0)
@@ -78,6 +77,14 @@ Item {
                 root.processListModalLoader.item.toggle();
 
             return "PROCESSLIST_TOGGLE_SUCCESS";
+        }
+
+        function focusOrToggle(): string {
+            root.processListModalLoader.active = true;
+            if (root.processListModalLoader.item)
+                root.processListModalLoader.item.focusOrToggle();
+
+            return "PROCESSLIST_FOCUS_OR_TOGGLE_SUCCESS";
         }
 
         target: "processlist"
@@ -322,79 +329,79 @@ Item {
 
     IpcHandler {
         function toggle(provider: string): string {
-            if (!provider) {
+            if (!provider)
                 return "ERROR: No provider specified";
-            }
 
-            KeybindsService.loadProvider(provider);
+            KeybindsService.currentProvider = provider;
+            KeybindsService.loadBinds();
             root.hyprKeybindsModalLoader.active = true;
 
-            if (root.hyprKeybindsModalLoader.item) {
-                if (root.hyprKeybindsModalLoader.item.shouldBeVisible) {
-                    root.hyprKeybindsModalLoader.item.close();
-                } else {
-                    root.hyprKeybindsModalLoader.item.open();
-                }
-                return `KEYBINDS_TOGGLE_SUCCESS: ${provider}`;
+            if (!root.hyprKeybindsModalLoader.item)
+                return `KEYBINDS_TOGGLE_FAILED: ${provider}`;
+
+            if (root.hyprKeybindsModalLoader.item.shouldBeVisible) {
+                root.hyprKeybindsModalLoader.item.close();
+            } else {
+                root.hyprKeybindsModalLoader.item.open();
             }
-            return `KEYBINDS_TOGGLE_FAILED: ${provider}`;
+            return `KEYBINDS_TOGGLE_SUCCESS: ${provider}`;
         }
 
         function toggleWithPath(provider: string, path: string): string {
-            if (!provider) {
+            if (!provider)
                 return "ERROR: No provider specified";
-            }
 
-            KeybindsService.loadProviderWithPath(provider, path);
+            KeybindsService.currentProvider = provider;
+            KeybindsService.loadBinds();
             root.hyprKeybindsModalLoader.active = true;
 
-            if (root.hyprKeybindsModalLoader.item) {
-                if (root.hyprKeybindsModalLoader.item.shouldBeVisible) {
-                    root.hyprKeybindsModalLoader.item.close();
-                } else {
-                    root.hyprKeybindsModalLoader.item.open();
-                }
-                return `KEYBINDS_TOGGLE_SUCCESS: ${provider} (${path})`;
+            if (!root.hyprKeybindsModalLoader.item)
+                return `KEYBINDS_TOGGLE_FAILED: ${provider}`;
+
+            if (root.hyprKeybindsModalLoader.item.shouldBeVisible) {
+                root.hyprKeybindsModalLoader.item.close();
+            } else {
+                root.hyprKeybindsModalLoader.item.open();
             }
-            return `KEYBINDS_TOGGLE_FAILED: ${provider}`;
+            return `KEYBINDS_TOGGLE_SUCCESS: ${provider} (${path})`;
         }
 
         function open(provider: string): string {
-            if (!provider) {
+            if (!provider)
                 return "ERROR: No provider specified";
-            }
 
-            KeybindsService.loadProvider(provider);
+            KeybindsService.currentProvider = provider;
+            KeybindsService.loadBinds();
             root.hyprKeybindsModalLoader.active = true;
 
-            if (root.hyprKeybindsModalLoader.item) {
-                root.hyprKeybindsModalLoader.item.open();
-                return `KEYBINDS_OPEN_SUCCESS: ${provider}`;
-            }
-            return `KEYBINDS_OPEN_FAILED: ${provider}`;
+            if (!root.hyprKeybindsModalLoader.item)
+                return `KEYBINDS_OPEN_FAILED: ${provider}`;
+
+            root.hyprKeybindsModalLoader.item.open();
+            return `KEYBINDS_OPEN_SUCCESS: ${provider}`;
         }
 
         function openWithPath(provider: string, path: string): string {
-            if (!provider) {
+            if (!provider)
                 return "ERROR: No provider specified";
-            }
 
-            KeybindsService.loadProviderWithPath(provider, path);
+            KeybindsService.currentProvider = provider;
+            KeybindsService.loadBinds();
             root.hyprKeybindsModalLoader.active = true;
 
-            if (root.hyprKeybindsModalLoader.item) {
-                root.hyprKeybindsModalLoader.item.open();
-                return `KEYBINDS_OPEN_SUCCESS: ${provider} (${path})`;
-            }
-            return `KEYBINDS_OPEN_FAILED: ${provider}`;
+            if (!root.hyprKeybindsModalLoader.item)
+                return `KEYBINDS_OPEN_FAILED: ${provider}`;
+
+            root.hyprKeybindsModalLoader.item.open();
+            return `KEYBINDS_OPEN_SUCCESS: ${provider} (${path})`;
         }
 
         function close(): string {
-            if (root.hyprKeybindsModalLoader.item) {
-                root.hyprKeybindsModalLoader.item.close();
-                return "KEYBINDS_CLOSE_SUCCESS";
-            }
-            return "KEYBINDS_CLOSE_FAILED";
+            if (!root.hyprKeybindsModalLoader.item)
+                return "KEYBINDS_CLOSE_FAILED";
+
+            root.hyprKeybindsModalLoader.item.close();
+            return "KEYBINDS_CLOSE_SUCCESS";
         }
 
         target: "keybinds"
@@ -402,44 +409,48 @@ Item {
 
     IpcHandler {
         function openBinds(): string {
-            if (!CompositorService.isHyprland) {
+            if (!CompositorService.isHyprland)
                 return "HYPR_NOT_AVAILABLE";
-            }
-            KeybindsService.loadProvider("hyprland");
+
+            KeybindsService.currentProvider = "hyprland";
+            KeybindsService.loadBinds();
             root.hyprKeybindsModalLoader.active = true;
-            if (root.hyprKeybindsModalLoader.item) {
-                root.hyprKeybindsModalLoader.item.open();
-                return "HYPR_KEYBINDS_OPEN_SUCCESS";
-            }
-            return "HYPR_KEYBINDS_OPEN_FAILED";
+
+            if (!root.hyprKeybindsModalLoader.item)
+                return "HYPR_KEYBINDS_OPEN_FAILED";
+
+            root.hyprKeybindsModalLoader.item.open();
+            return "HYPR_KEYBINDS_OPEN_SUCCESS";
         }
 
         function closeBinds(): string {
-            if (!CompositorService.isHyprland) {
+            if (!CompositorService.isHyprland)
                 return "HYPR_NOT_AVAILABLE";
-            }
-            if (root.hyprKeybindsModalLoader.item) {
-                root.hyprKeybindsModalLoader.item.close();
-                return "HYPR_KEYBINDS_CLOSE_SUCCESS";
-            }
-            return "HYPR_KEYBINDS_CLOSE_FAILED";
+
+            if (!root.hyprKeybindsModalLoader.item)
+                return "HYPR_KEYBINDS_CLOSE_FAILED";
+
+            root.hyprKeybindsModalLoader.item.close();
+            return "HYPR_KEYBINDS_CLOSE_SUCCESS";
         }
 
         function toggleBinds(): string {
-            if (!CompositorService.isHyprland) {
+            if (!CompositorService.isHyprland)
                 return "HYPR_NOT_AVAILABLE";
-            }
-            KeybindsService.loadProvider("hyprland");
+
+            KeybindsService.currentProvider = "hyprland";
+            KeybindsService.loadBinds();
             root.hyprKeybindsModalLoader.active = true;
-            if (root.hyprKeybindsModalLoader.item) {
-                if (root.hyprKeybindsModalLoader.item.shouldBeVisible) {
-                    root.hyprKeybindsModalLoader.item.close();
-                } else {
-                    root.hyprKeybindsModalLoader.item.open();
-                }
-                return "HYPR_KEYBINDS_TOGGLE_SUCCESS";
+
+            if (!root.hyprKeybindsModalLoader.item)
+                return "HYPR_KEYBINDS_TOGGLE_FAILED";
+
+            if (root.hyprKeybindsModalLoader.item.shouldBeVisible) {
+                root.hyprKeybindsModalLoader.item.close();
+            } else {
+                root.hyprKeybindsModalLoader.item.open();
             }
-            return "HYPR_KEYBINDS_TOGGLE_FAILED";
+            return "HYPR_KEYBINDS_TOGGLE_SUCCESS";
         }
 
         function toggleOverview(): string {
@@ -481,70 +492,267 @@ Item {
         target: "dankdash"
     }
 
+    function getBarConfig(selector: string, value: string): var {
+        const barSelectors = ["id", "name", "index"];
+        if (!barSelectors.includes(selector))
+            return {
+                error: "BAR_INVALID_SELECTOR"
+            };
+        const index = selector === "index" ? Number(value) : SettingsData.barConfigs.findIndex(bar => bar[selector] == value);
+        const barConfig = SettingsData.barConfigs?.[index];
+        if (!barConfig)
+            return {
+                error: "BAR_NOT_FOUND"
+            };
+        return {
+            barConfig
+        };
+    }
+
     IpcHandler {
-        function reveal(index: int): string {
-            const idx = index - 1;
-            if (idx < 0 || idx >= SettingsData.barConfigs.length) {
-                return `BAR_${index}_NOT_FOUND`;
-            }
-            const bar = SettingsData.barConfigs[idx];
-            SettingsData.updateBarConfig(bar.id, {
+        function reveal(selector: string, value: string): string {
+            const {
+                barConfig,
+                error
+            } = getBarConfig(selector, value);
+            if (error)
+                return error;
+            SettingsData.updateBarConfig(barConfig.id, {
                 visible: true
             });
-            return `BAR_${index}_SHOW_SUCCESS`;
+            return "BAR_SHOW_SUCCESS";
         }
 
-        function hide(index: int): string {
-            const idx = index - 1;
-            if (idx < 0 || idx >= SettingsData.barConfigs.length) {
-                return `BAR_${index}_NOT_FOUND`;
-            }
-            const bar = SettingsData.barConfigs[idx];
-            SettingsData.updateBarConfig(bar.id, {
+        function hide(selector: string, value: string): string {
+            const {
+                barConfig,
+                error
+            } = getBarConfig(selector, value);
+            if (error)
+                return error;
+            SettingsData.updateBarConfig(barConfig.id, {
                 visible: false
             });
-            return `BAR_${index}_HIDE_SUCCESS`;
+            return "BAR_HIDE_SUCCESS";
         }
 
-        function toggle(index: int): string {
-            const idx = index - 1;
-            if (idx < 0 || idx >= SettingsData.barConfigs.length) {
-                return `BAR_${index}_NOT_FOUND`;
-            }
-            const bar = SettingsData.barConfigs[idx];
-            const newVisible = !(bar.visible ?? true);
-            SettingsData.updateBarConfig(bar.id, {
-                visible: newVisible
+        function toggle(selector: string, value: string): string {
+            const {
+                barConfig,
+                error
+            } = getBarConfig(selector, value);
+            if (error)
+                return error;
+            SettingsData.updateBarConfig(barConfig.id, {
+                visible: !barConfig.visible
             });
-            return newVisible ? `BAR_${index}_SHOW_SUCCESS` : `BAR_${index}_HIDE_SUCCESS`;
+            return !barConfig.visible ? "BAR_SHOW_SUCCESS" : "BAR_HIDE_SUCCESS";
         }
 
-        function status(index: int): string {
-            const idx = index - 1;
-            if (idx < 0 || idx >= SettingsData.barConfigs.length) {
-                return `BAR_${index}_NOT_FOUND`;
-            }
-            const bar = SettingsData.barConfigs[idx];
-            return (bar.visible ?? true) ? "visible" : "hidden";
+        function status(selector: string, value: string): string {
+            const {
+                barConfig,
+                error
+            } = getBarConfig(selector, value);
+            if (error)
+                return error;
+            return barConfig.visible ? "visible" : "hidden";
+        }
+
+        function autoHide(selector: string, value: string): string {
+            const {
+                barConfig,
+                error
+            } = getBarConfig(selector, value);
+            if (error)
+                return error;
+            SettingsData.updateBarConfig(barConfig.id, {
+                autoHide: true
+            });
+            return "BAR_AUTO_HIDE_SUCCESS";
+        }
+
+        function manualHide(selector: string, value: string): string {
+            const {
+                barConfig,
+                error
+            } = getBarConfig(selector, value);
+            if (error)
+                return error;
+            SettingsData.updateBarConfig(barConfig.id, {
+                autoHide: false
+            });
+            return "BAR_MANUAL_HIDE_SUCCESS";
+        }
+
+        function toggleAutoHide(selector: string, value: string): string {
+            const {
+                barConfig,
+                error
+            } = getBarConfig(selector, value);
+            if (error)
+                return error;
+            SettingsData.updateBarConfig(barConfig.id, {
+                autoHide: !barConfig.autoHide
+            });
+            return barConfig.autoHide ? "BAR_MANUAL_HIDE_SUCCESS" : "BAR_AUTO_HIDE_SUCCESS";
         }
 
         target: "bar"
     }
 
     IpcHandler {
+        function reveal(): string {
+            SettingsData.setShowDock(true);
+            return "DOCK_SHOW_SUCCESS";
+        }
+
+        function hide(): string {
+            SettingsData.setShowDock(false);
+            return "DOCK_HIDE_SUCCESS";
+        }
+
+        function toggle(): string {
+            SettingsData.toggleShowDock();
+            return SettingsData.showDock ? "DOCK_SHOW_SUCCESS" : "DOCK_HIDE_SUCCESS";
+        }
+
+        function status(): string {
+            return SettingsData.showDock ? "visible" : "hidden";
+        }
+
+        function autoHide(): string {
+            SettingsData.dockAutoHide = true;
+            SettingsData.saveSettings();
+            return "BAR_AUTO_HIDE_SUCCESS";
+        }
+
+        function manualHide(): string {
+            SettingsData.dockAutoHide = false;
+            SettingsData.saveSettings();
+            return "BAR_MANUAL_HIDE_SUCCESS";
+        }
+
+        function toggleAutoHide(): string {
+            SettingsData.dockAutoHide = !SettingsData.dockAutoHide;
+            SettingsData.saveSettings();
+            return SettingsData.dockAutoHide ? "BAR_AUTO_HIDE_SUCCESS" : "BAR_MANUAL_HIDE_SUCCESS";
+        }
+
+        target: "dock"
+    }
+
+    IpcHandler {
         function open(): string {
-            root.settingsModal.show();
+            PopoutService.openSettings();
             return "SETTINGS_OPEN_SUCCESS";
         }
 
+        function openWith(tab: string): string {
+            if (!tab)
+                return "SETTINGS_OPEN_FAILED: No tab specified";
+            PopoutService.openSettingsWithTab(tab);
+            return `SETTINGS_OPEN_SUCCESS: ${tab}`;
+        }
+
         function close(): string {
-            root.settingsModal.hide();
+            PopoutService.closeSettings();
             return "SETTINGS_CLOSE_SUCCESS";
         }
 
         function toggle(): string {
-            root.settingsModal.toggle();
+            PopoutService.toggleSettings();
             return "SETTINGS_TOGGLE_SUCCESS";
+        }
+
+        function toggleWith(tab: string): string {
+            if (!tab)
+                return "SETTINGS_TOGGLE_FAILED: No tab specified";
+            PopoutService.toggleSettingsWithTab(tab);
+            return `SETTINGS_TOGGLE_SUCCESS: ${tab}`;
+        }
+
+        function focusOrToggle(): string {
+            PopoutService.focusOrToggleSettings();
+            return "SETTINGS_FOCUS_OR_TOGGLE_SUCCESS";
+        }
+
+        function focusOrToggleWith(tab: string): string {
+            if (!tab)
+                return "SETTINGS_FOCUS_OR_TOGGLE_FAILED: No tab specified";
+            PopoutService.focusOrToggleSettingsWithTab(tab);
+            return `SETTINGS_FOCUS_OR_TOGGLE_SUCCESS: ${tab}`;
+        }
+
+        function tabs(): string {
+            if (!PopoutService.settingsModal)
+                return "wallpaper\ntheme\ntypography\ntime_weather\nsounds\ndankbar\ndankbar_settings\ndankbar_widgets\nworkspaces\nmedia_player\nnotifications\nosd\nrunning_apps\nupdater\ndock\nlauncher\nkeybinds\ndisplays\nnetwork\nprinters\nlock_screen\npower_sleep\nplugins\nabout";
+            var modal = PopoutService.settingsModal;
+            var ids = [];
+            var structure = modal.sidebar?.categoryStructure ?? [];
+            for (var i = 0; i < structure.length; i++) {
+                var cat = structure[i];
+                if (cat.separator)
+                    continue;
+                if (cat.id)
+                    ids.push(cat.id);
+                if (cat.children) {
+                    for (var j = 0; j < cat.children.length; j++) {
+                        if (cat.children[j].id)
+                            ids.push(cat.children[j].id);
+                    }
+                }
+            }
+            return ids.join("\n");
+        }
+
+        function get(key: string): string {
+            return JSON.stringify(SettingsData?.[key]);
+        }
+
+        function set(key: string, value: string): string {
+            if (!(key in SettingsData)) {
+                console.warn("Cannot set property, not found:", key);
+                return "SETTINGS_INVALID_KEY";
+            }
+
+            const typeName = typeof SettingsData?.[key];
+
+            try {
+                switch (typeName) {
+                case "boolean":
+                    if (value === "true" || value === "false")
+                        value = (value === "true");
+                    else
+                        throw `${value} is not a Boolean`;
+                    break;
+                case "number":
+                    value = Number(value);
+                    if (isNaN(value))
+                        throw `${value} is not a Number`;
+                    break;
+                case "string":
+                    value = String(value);
+                    break;
+                case "object":
+                    // NOTE: Parsing lists is messed up upstream and not sure if we want
+                    // to make sure objects are well structured or just let people set
+                    // whatever they want but risking messed up settings.
+                    // Objects & Arrays are disabled for now
+                    // https://github.com/quickshell-mirror/quickshell/pull/22
+                    throw "Setting Objects and Arrays not supported";
+                default:
+                    throw "Unsupported type";
+                }
+
+                console.warn("Setting:", key, value);
+                SettingsData[key] = value;
+                SettingsData.saveSettings();
+                return "SETTINGS_SET_SUCCESS";
+            } catch (e) {
+                console.warn("Failed to set property:", key, "error:", e);
+                return "SETTINGS_SET_FAILURE";
+            }
         }
 
         target: "settings"
@@ -552,12 +760,17 @@ Item {
 
     IpcHandler {
         function browse(type: string) {
-            if (type === "wallpaper") {
-                root.settingsModal.wallpaperBrowser.allowStacking = false;
-                root.settingsModal.wallpaperBrowser.open();
-            } else if (type === "profile") {
-                root.settingsModal.profileBrowser.allowStacking = false;
-                root.settingsModal.profileBrowser.open();
+            const modal = PopoutService.settingsModal;
+            if (modal) {
+                if (type === "wallpaper") {
+                    modal.wallpaperBrowser.allowStacking = false;
+                    modal.wallpaperBrowser.open();
+                } else if (type === "profile") {
+                    modal.profileBrowser.allowStacking = false;
+                    modal.profileBrowser.open();
+                }
+            } else {
+                PopoutService.openSettings();
             }
         }
 

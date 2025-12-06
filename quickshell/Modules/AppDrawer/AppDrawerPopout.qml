@@ -1,11 +1,9 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Effects
 import Quickshell
-import Quickshell.Io
-import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.Common
+import qs.Modals.Spotlight
 import qs.Modules.AppDrawer
 import qs.Services
 import qs.Widgets
@@ -15,8 +13,29 @@ DankPopout {
 
     layerNamespace: "dms:app-launcher"
 
+    property string searchMode: "apps"
+    property alias fileSearch: fileSearchController
+
+    function updateSearchMode(text) {
+        if (text.startsWith("/")) {
+            if (searchMode === "files") {
+                fileSearchController.searchQuery = text.substring(1);
+                return;
+            }
+            searchMode = "files";
+            fileSearchController.searchQuery = text.substring(1);
+            return;
+        }
+        if (searchMode === "apps") {
+            return;
+        }
+        searchMode = "apps";
+        fileSearchController.reset();
+        appLauncher.searchQuery = text;
+    }
+
     function show() {
-        open()
+        open();
     }
 
     popupWidth: 520
@@ -24,16 +43,24 @@ DankPopout {
     triggerWidth: 40
     positioning: ""
 
-    onBackgroundClicked: close()
+    onBackgroundClicked: {
+        if (contextMenu.visible) {
+            contextMenu.close();
+        }
+        close();
+    }
 
     onOpened: {
-        appLauncher.searchQuery = ""
-        appLauncher.selectedIndex = 0
-        appLauncher.setCategory(I18n.tr("All"))
+        searchMode = "apps";
+        appLauncher.searchQuery = "";
+        appLauncher.selectedIndex = 0;
+        appLauncher.setCategory(I18n.tr("All"));
+        fileSearchController.reset();
         if (contentLoader.item?.searchField) {
-            contentLoader.item.searchField.text = ""
-            contentLoader.item.searchField.forceActiveFocus()
+            contentLoader.item.searchField.text = "";
+            contentLoader.item.searchField.forceActiveFocus();
         }
+        contextMenu.parent = contentLoader.item;
     }
 
     AppLauncher {
@@ -43,7 +70,24 @@ DankPopout {
         gridColumns: SettingsData.appLauncherGridColumns
         onAppLaunched: appDrawerPopout.close()
         onViewModeSelected: function (mode) {
-            SettingsData.set("appLauncherViewMode", mode)
+            SettingsData.set("appLauncherViewMode", mode);
+        }
+    }
+
+    FileSearchController {
+        id: fileSearchController
+
+        onFileOpened: appDrawerPopout.close()
+    }
+
+    onSearchModeChanged: {
+        switch (searchMode) {
+        case "files":
+            appLauncher.keyboardNavigationActive = false;
+            break;
+        case "apps":
+            fileSearchController.keyboardNavigationActive = false;
+            break;
         }
     }
 
@@ -60,19 +104,23 @@ DankPopout {
 
             // Multi-layer border effect
             Repeater {
-                model: [{
+                model: [
+                    {
                         "margin": -3,
                         "color": Qt.rgba(0, 0, 0, 0.05),
                         "z": -3
-                    }, {
+                    },
+                    {
                         "margin": -2,
                         "color": Qt.rgba(0, 0, 0, 0.08),
                         "z": -2
-                    }, {
+                    },
+                    {
                         "margin": 0,
                         "color": Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.12),
                         "z": -1
-                    }]
+                    }
+                ]
                 Rectangle {
                     anchors.fill: parent
                     anchors.margins: modelData.margin
@@ -89,69 +137,91 @@ DankPopout {
 
                 anchors.fill: parent
                 focus: true
-                readonly property var keyMappings: {
-                    const mappings = {}
-                    mappings[Qt.Key_Escape] = () => appDrawerPopout.close()
-                    mappings[Qt.Key_Down] = () => appLauncher.selectNext()
-                    mappings[Qt.Key_Up] = () => appLauncher.selectPrevious()
-                    mappings[Qt.Key_Return] = () => appLauncher.launchSelected()
-                    mappings[Qt.Key_Enter] = () => appLauncher.launchSelected()
-                    mappings[Qt.Key_Tab] = () => appLauncher.viewMode === "grid" ? appLauncher.selectNextInRow() : appLauncher.selectNext()
-                    mappings[Qt.Key_Backtab] = () => appLauncher.viewMode === "grid" ? appLauncher.selectPreviousInRow() : appLauncher.selectPrevious()
 
-                    if (appLauncher.viewMode === "grid") {
-                        mappings[Qt.Key_Right] = () => appLauncher.selectNextInRow()
-                        mappings[Qt.Key_Left] = () => appLauncher.selectPreviousInRow()
+                function selectNext() {
+                    switch (appDrawerPopout.searchMode) {
+                    case "files":
+                        fileSearchController.selectNext();
+                        return;
+                    default:
+                        appLauncher.selectNext();
+                    }
+                }
+
+                function selectPrevious() {
+                    switch (appDrawerPopout.searchMode) {
+                    case "files":
+                        fileSearchController.selectPrevious();
+                        return;
+                    default:
+                        appLauncher.selectPrevious();
+                    }
+                }
+
+                function activateSelected() {
+                    switch (appDrawerPopout.searchMode) {
+                    case "files":
+                        fileSearchController.openSelected();
+                        return;
+                    default:
+                        appLauncher.launchSelected();
+                    }
+                }
+
+                readonly property var keyMappings: {
+                    const mappings = {};
+                    mappings[Qt.Key_Escape] = () => appDrawerPopout.close();
+                    mappings[Qt.Key_Down] = () => keyHandler.selectNext();
+                    mappings[Qt.Key_Up] = () => keyHandler.selectPrevious();
+                    mappings[Qt.Key_Return] = () => keyHandler.activateSelected();
+                    mappings[Qt.Key_Enter] = () => keyHandler.activateSelected();
+                    mappings[Qt.Key_Tab] = () => appDrawerPopout.searchMode === "apps" && appLauncher.viewMode === "grid" ? appLauncher.selectNextInRow() : keyHandler.selectNext();
+                    mappings[Qt.Key_Backtab] = () => appDrawerPopout.searchMode === "apps" && appLauncher.viewMode === "grid" ? appLauncher.selectPreviousInRow() : keyHandler.selectPrevious();
+
+                    if (appDrawerPopout.searchMode === "apps" && appLauncher.viewMode === "grid") {
+                        mappings[Qt.Key_Right] = () => appLauncher.selectNextInRow();
+                        mappings[Qt.Key_Left] = () => appLauncher.selectPreviousInRow();
                     }
 
-                    return mappings
+                    return mappings;
                 }
 
                 Keys.onPressed: function (event) {
                     if (keyMappings[event.key]) {
-                        keyMappings[event.key]()
-                        event.accepted = true
-                        return
+                        keyMappings[event.key]();
+                        event.accepted = true;
+                        return;
                     }
 
-                    if (event.key === Qt.Key_N && event.modifiers & Qt.ControlModifier) {
-                        appLauncher.selectNext()
-                        event.accepted = true
-                        return
+                    const hasCtrl = event.modifiers & Qt.ControlModifier;
+                    if (!hasCtrl) {
+                        return;
                     }
 
-                    if (event.key === Qt.Key_P && event.modifiers & Qt.ControlModifier) {
-                        appLauncher.selectPrevious()
-                        event.accepted = true
-                        return
-                    }
-
-                    if (event.key === Qt.Key_J && event.modifiers & Qt.ControlModifier) {
-                        appLauncher.selectNext()
-                        event.accepted = true
-                        return
-                    }
-
-                    if (event.key === Qt.Key_K && event.modifiers & Qt.ControlModifier) {
-                        appLauncher.selectPrevious()
-                        event.accepted = true
-                        return
-                    }
-
-                    if (appLauncher.viewMode === "grid") {
-                        if (event.key === Qt.Key_L && event.modifiers & Qt.ControlModifier) {
-                            appLauncher.selectNextInRow()
-                            event.accepted = true
-                            return
+                    switch (event.key) {
+                    case Qt.Key_N:
+                    case Qt.Key_J:
+                        keyHandler.selectNext();
+                        event.accepted = true;
+                        return;
+                    case Qt.Key_P:
+                    case Qt.Key_K:
+                        keyHandler.selectPrevious();
+                        event.accepted = true;
+                        return;
+                    case Qt.Key_L:
+                        if (appDrawerPopout.searchMode === "apps" && appLauncher.viewMode === "grid") {
+                            appLauncher.selectNextInRow();
+                            event.accepted = true;
                         }
-
-                        if (event.key === Qt.Key_H && event.modifiers & Qt.ControlModifier) {
-                            appLauncher.selectPreviousInRow()
-                            event.accepted = true
-                            return
+                        return;
+                    case Qt.Key_H:
+                        if (appDrawerPopout.searchMode === "apps" && appLauncher.viewMode === "grid") {
+                            appLauncher.selectPreviousInRow();
+                            event.accepted = true;
                         }
+                        return;
                     }
-
                 }
 
                 Column {
@@ -169,7 +239,7 @@ DankPopout {
                             anchors.left: parent.left
                             anchors.leftMargin: Theme.spacingS
                             anchors.verticalCenter: parent.verticalCenter
-                            text: I18n.tr("Applications")
+                            text: appDrawerPopout.searchMode === "files" ? I18n.tr("Files") : I18n.tr("Applications")
                             font.pixelSize: Theme.fontSizeLarge + 4
                             font.weight: Font.Bold
                             color: Theme.surfaceText
@@ -179,7 +249,14 @@ DankPopout {
                             anchors.right: parent.right
                             anchors.rightMargin: Theme.spacingS
                             anchors.verticalCenter: parent.verticalCenter
-                            text: appLauncher.model.count + " apps"
+                            text: {
+                                switch (appDrawerPopout.searchMode) {
+                                case "files":
+                                    return fileSearchController.model.count + " " + I18n.tr("files");
+                                default:
+                                    return appLauncher.model.count + " " + I18n.tr("apps");
+                                }
+                            }
                             font.pixelSize: Theme.fontSizeMedium
                             color: Theme.surfaceVariantText
                         }
@@ -195,50 +272,64 @@ DankPopout {
                         backgroundColor: Theme.withAlpha(Theme.surfaceContainerHigh, Theme.popupTransparency)
                         normalBorderColor: Theme.outlineMedium
                         focusedBorderColor: Theme.primary
-                        leftIconName: "search"
+                        leftIconName: appDrawerPopout.searchMode === "files" ? "folder" : "search"
                         leftIconSize: Theme.iconSize
                         leftIconColor: Theme.surfaceVariantText
                         leftIconFocusedColor: Theme.primary
                         showClearButton: true
                         font.pixelSize: Theme.fontSizeLarge
                         enabled: appDrawerPopout.shouldBeVisible
-                        ignoreLeftRightKeys: appLauncher.viewMode !== "list"
+                        ignoreLeftRightKeys: appDrawerPopout.searchMode === "apps" && appLauncher.viewMode !== "list"
                         ignoreTabKeys: true
                         keyForwardTargets: [keyHandler]
+                        onTextChanged: {
+                            if (appDrawerPopout.searchMode === "apps") {
+                                appLauncher.searchQuery = text;
+                            }
+                        }
                         onTextEdited: {
-                            appLauncher.searchQuery = text
+                            appDrawerPopout.updateSearchMode(text);
                         }
                         Keys.onPressed: function (event) {
                             if (event.key === Qt.Key_Escape) {
-                                appDrawerPopout.close()
-                                event.accepted = true
-                                return
+                                appDrawerPopout.close();
+                                event.accepted = true;
+                                return;
                             }
 
-                            const isEnterKey = [Qt.Key_Return, Qt.Key_Enter].includes(event.key)
-                            const hasText = text.length > 0
+                            const isEnterKey = [Qt.Key_Return, Qt.Key_Enter].includes(event.key);
+                            const hasText = text.length > 0;
 
                             if (isEnterKey && hasText) {
-                                if (appLauncher.keyboardNavigationActive && appLauncher.model.count > 0) {
-                                    appLauncher.launchSelected()
-                                } else if (appLauncher.model.count > 0) {
-                                    appLauncher.launchApp(appLauncher.model.get(0))
+                                switch (appDrawerPopout.searchMode) {
+                                case "files":
+                                    if (fileSearchController.model.count > 0) {
+                                        fileSearchController.openSelected();
+                                    }
+                                    event.accepted = true;
+                                    return;
+                                default:
+                                    if (appLauncher.keyboardNavigationActive && appLauncher.model.count > 0) {
+                                        appLauncher.launchSelected();
+                                    } else if (appLauncher.model.count > 0) {
+                                        appLauncher.launchApp(appLauncher.model.get(0));
+                                    }
+                                    event.accepted = true;
+                                    return;
                                 }
-                                event.accepted = true
-                                return
                             }
 
-                            const navigationKeys = [Qt.Key_Down, Qt.Key_Up, Qt.Key_Left, Qt.Key_Right, Qt.Key_Tab, Qt.Key_Backtab]
-                            const isNavigationKey = navigationKeys.includes(event.key)
-                            const isEmptyEnter = isEnterKey && !hasText
+                            const navigationKeys = [Qt.Key_Down, Qt.Key_Up, Qt.Key_Left, Qt.Key_Right, Qt.Key_Tab, Qt.Key_Backtab];
+                            const isNavigationKey = navigationKeys.includes(event.key);
+                            const isEmptyEnter = isEnterKey && !hasText;
 
-                            event.accepted = !(isNavigationKey || isEmptyEnter)
+                            event.accepted = !(isNavigationKey || isEmptyEnter);
                         }
 
                         Connections {
                             function onShouldBeVisibleChanged() {
                                 if (!appDrawerPopout.shouldBeVisible) {
-                                    searchField.focus = false
+                                    searchField.focus = false;
                                 }
                             }
 
@@ -246,18 +337,19 @@ DankPopout {
                         }
                     }
 
-                    Row {
-                        width: parent.width
+                    Item {
+                        width: parent.width - Theme.spacingS * 2
                         height: 40
-                        spacing: Theme.spacingM
-                        visible: searchField.text.length === 0
-                        leftPadding: Theme.spacingS
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        visible: searchField.text.length === 0 && appDrawerPopout.searchMode === "apps"
 
                         Rectangle {
                             width: 180
                             height: 40
                             radius: Theme.cornerRadius
                             color: "transparent"
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
 
                             DankDropdown {
                                 anchors.fill: parent
@@ -267,18 +359,14 @@ DankPopout {
                                 options: appLauncher.categories
                                 optionIcons: appLauncher.categoryIcons
                                 onValueChanged: function (value) {
-                                    appLauncher.setCategory(value)
+                                    appLauncher.setCategory(value);
                                 }
                             }
                         }
 
-                        Item {
-                            width: parent.width - 290
-                            height: 1
-                        }
-
                         Row {
                             spacing: 4
+                            anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
 
                             DankActionButton {
@@ -289,7 +377,7 @@ DankPopout {
                                 iconColor: appLauncher.viewMode === "list" ? Theme.primary : Theme.surfaceText
                                 backgroundColor: appLauncher.viewMode === "list" ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12) : "transparent"
                                 onClicked: {
-                                    appLauncher.setViewMode("list")
+                                    appLauncher.setViewMode("list");
                                 }
                             }
 
@@ -301,22 +389,51 @@ DankPopout {
                                 iconColor: appLauncher.viewMode === "grid" ? Theme.primary : Theme.surfaceText
                                 backgroundColor: appLauncher.viewMode === "grid" ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12) : "transparent"
                                 onClicked: {
-                                    appLauncher.setViewMode("grid")
+                                    appLauncher.setViewMode("grid");
                                 }
                             }
                         }
                     }
 
                     Rectangle {
-                        width: parent.width
+                        width: searchField.width
+                        x: searchField.x
                         height: {
-                            let usedHeight = 40 + Theme.spacingS
-                            usedHeight += 52 + Theme.spacingS
-                            usedHeight += (searchField.text.length === 0 ? 40 : 0)
-                            return parent.height - usedHeight
+                            let usedHeight = 40 + Theme.spacingS;
+                            usedHeight += 52 + Theme.spacingS;
+                            usedHeight += (searchField.text.length === 0 && appDrawerPopout.searchMode === "apps" ? 40 : 0);
+                            return parent.height - usedHeight;
                         }
                         radius: Theme.cornerRadius
                         color: "transparent"
+                        clip: true
+
+                        Rectangle {
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            height: 32
+                            z: 100
+                            visible: {
+                                if (appDrawerPopout.searchMode !== "apps")
+                                    return false;
+                                const view = appLauncher.viewMode === "list" ? appList : appGrid;
+                                const isLastItem = view.currentIndex >= view.count - 1;
+                                const hasOverflow = view.contentHeight > view.height;
+                                const atBottom = view.contentY >= view.contentHeight - view.height - 1;
+                                return hasOverflow && (!isLastItem || !atBottom);
+                            }
+                            gradient: Gradient {
+                                GradientStop {
+                                    position: 0.0
+                                    color: "transparent"
+                                }
+                                GradientStop {
+                                    position: 1.0
+                                    color: Theme.withAlpha(Theme.surfaceContainer, Theme.popupTransparency)
+                                }
+                            }
+                        }
 
                         DankListView {
                             id: appList
@@ -334,21 +451,20 @@ DankPopout {
 
                             function ensureVisible(index) {
                                 if (index < 0 || index >= count)
-                                    return
-
-                                var itemY = index * (itemHeight + itemSpacing)
-                                var itemBottom = itemY + itemHeight
+                                    return;
+                                var itemY = index * (itemHeight + itemSpacing);
+                                var itemBottom = itemY + itemHeight;
+                                var fadeHeight = 32;
+                                var isLastItem = index === count - 1;
                                 if (itemY < contentY)
-                                    contentY = itemY
-                                else if (itemBottom > contentY + height)
-                                    contentY = itemBottom - height
+                                    contentY = itemY;
+                                else if (itemBottom > contentY + height - (isLastItem ? 0 : fadeHeight))
+                                    contentY = Math.min(itemBottom - height + (isLastItem ? 0 : fadeHeight), contentHeight - height);
                             }
 
                             anchors.fill: parent
-                            anchors.leftMargin: Theme.spacingS
-                            anchors.rightMargin: Theme.spacingS
-                            anchors.bottomMargin: Theme.spacingS
-                            visible: appLauncher.viewMode === "list"
+                            anchors.bottomMargin: 1
+                            visible: appDrawerPopout.searchMode === "apps" && appLauncher.viewMode === "list"
                             model: appLauncher.model
                             currentIndex: appLauncher.selectedIndex
                             clip: true
@@ -360,17 +476,17 @@ DankPopout {
 
                             onCurrentIndexChanged: {
                                 if (keyboardNavigationActive)
-                                    ensureVisible(currentIndex)
+                                    ensureVisible(currentIndex);
                             }
 
                             onItemClicked: function (index, modelData) {
-                                appLauncher.launchApp(modelData)
+                                appLauncher.launchApp(modelData);
                             }
                             onItemRightClicked: function (index, modelData, mouseX, mouseY) {
-                                contextMenu.show(mouseX, mouseY, modelData)
+                                contextMenu.show(mouseX, mouseY, modelData);
                             }
                             onKeyboardNavigationReset: {
-                                appLauncher.keyboardNavigationActive = false
+                                appLauncher.keyboardNavigationActive = false;
                             }
 
                             delegate: AppLauncherListDelegate {
@@ -390,8 +506,8 @@ DankPopout {
                                 iconFallbackBottomMargin: Theme.spacingM
                                 onItemClicked: (idx, modelData) => appList.itemClicked(idx, modelData)
                                 onItemRightClicked: (idx, modelData, mouseX, mouseY) => {
-                                    const panelPos = contextMenu.parent.mapFromItem(null, mouseX, mouseY)
-                                    appList.itemRightClicked(idx, modelData, panelPos.x, panelPos.y)
+                                    const panelPos = contextMenu.parent.mapFromItem(null, mouseX, mouseY);
+                                    appList.itemRightClicked(idx, modelData, panelPos.x, panelPos.y);
                                 }
                                 onKeyboardNavigationReset: appList.keyboardNavigationReset
                             }
@@ -405,14 +521,13 @@ DankPopout {
                             property bool adaptiveColumns: false
                             property int minCellWidth: 120
                             property int maxCellWidth: 160
-                            property int cellPadding: 8
                             property real iconSizeRatio: 0.6
                             property int maxIconSize: 56
                             property int minIconSize: 32
                             property bool hoverUpdatesSelection: false
                             property bool keyboardNavigationActive: appLauncher.keyboardNavigationActive
-                            property int baseCellWidth: adaptiveColumns ? Math.max(minCellWidth, Math.min(maxCellWidth, width / columns)) : (width - Theme.spacingS * 2) / columns
-                            property int baseCellHeight: baseCellWidth + 20
+                            property real baseCellWidth: adaptiveColumns ? Math.max(minCellWidth, Math.min(maxCellWidth, width / columns)) : width / columns
+                            property real baseCellHeight: baseCellWidth + 20
                             property int actualColumns: adaptiveColumns ? Math.floor(width / cellWidth) : columns
 
                             property int remainingSpace: width - (actualColumns * cellWidth)
@@ -423,27 +538,24 @@ DankPopout {
 
                             function ensureVisible(index) {
                                 if (index < 0 || index >= count)
-                                    return
-
-                                var itemY = Math.floor(index / actualColumns) * cellHeight
-                                var itemBottom = itemY + cellHeight
+                                    return;
+                                var itemY = Math.floor(index / actualColumns) * cellHeight;
+                                var itemBottom = itemY + cellHeight;
+                                var fadeHeight = 32;
+                                var isLastRow = Math.floor(index / actualColumns) >= Math.floor((count - 1) / actualColumns);
                                 if (itemY < contentY)
-                                    contentY = itemY
-                                else if (itemBottom > contentY + height)
-                                    contentY = itemBottom - height
+                                    contentY = itemY;
+                                else if (itemBottom > contentY + height - (isLastRow ? 0 : fadeHeight))
+                                    contentY = Math.min(itemBottom - height + (isLastRow ? 0 : fadeHeight), contentHeight - height);
                             }
 
                             anchors.fill: parent
-                            anchors.leftMargin: Theme.spacingS
-                            anchors.rightMargin: Theme.spacingS
-                            anchors.bottomMargin: Theme.spacingS
-                            visible: appLauncher.viewMode === "grid"
+                            anchors.bottomMargin: 1
+                            visible: appDrawerPopout.searchMode === "apps" && appLauncher.viewMode === "grid"
                             model: appLauncher.model
                             clip: true
                             cellWidth: baseCellWidth
                             cellHeight: baseCellHeight
-                            leftMargin: Math.max(Theme.spacingS, remainingSpace / 2)
-                            rightMargin: leftMargin
                             focus: true
                             interactive: true
                             cacheBuffer: Math.max(0, Math.min(height * 2, 1000))
@@ -451,24 +563,23 @@ DankPopout {
 
                             onCurrentIndexChanged: {
                                 if (keyboardNavigationActive)
-                                    ensureVisible(currentIndex)
+                                    ensureVisible(currentIndex);
                             }
 
                             onItemClicked: function (index, modelData) {
-                                appLauncher.launchApp(modelData)
+                                appLauncher.launchApp(modelData);
                             }
                             onItemRightClicked: function (index, modelData, mouseX, mouseY) {
-                                contextMenu.show(mouseX, mouseY, modelData)
+                                contextMenu.show(mouseX, mouseY, modelData);
                             }
                             onKeyboardNavigationReset: {
-                                appLauncher.keyboardNavigationActive = false
+                                appLauncher.keyboardNavigationActive = false;
                             }
 
                             delegate: AppLauncherGridDelegate {
                                 gridView: appGrid
                                 cellWidth: appGrid.cellWidth
                                 cellHeight: appGrid.cellHeight
-                                cellPadding: appGrid.cellPadding
                                 minIconSize: appGrid.minIconSize
                                 maxIconSize: appGrid.maxIconSize
                                 iconSizeRatio: appGrid.iconSizeRatio
@@ -484,14 +595,27 @@ DankPopout {
                                 iconMaterialSizeAdjustment: Theme.spacingL
                                 onItemClicked: (idx, modelData) => appGrid.itemClicked(idx, modelData)
                                 onItemRightClicked: (idx, modelData, mouseX, mouseY) => {
-                                    const panelPos = contextMenu.parent.mapFromItem(null, mouseX, mouseY)
-                                    appGrid.itemRightClicked(idx, modelData, panelPos.x, panelPos.y)
+                                    const panelPos = contextMenu.parent.mapFromItem(null, mouseX, mouseY);
+                                    appGrid.itemRightClicked(idx, modelData, panelPos.x, panelPos.y);
                                 }
                                 onKeyboardNavigationReset: appGrid.keyboardNavigationReset
                             }
                         }
+
+                        FileSearchResults {
+                            anchors.fill: parent
+                            fileSearchController: appDrawerPopout.fileSearch
+                            visible: appDrawerPopout.searchMode === "files"
+                        }
                     }
                 }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                visible: contextMenu.visible
+                z: 998
+                onClicked: contextMenu.hide()
             }
         }
     }
@@ -505,14 +629,32 @@ DankPopout {
         readonly property bool isPinned: appId && SessionData.isPinnedApp(appId)
 
         function show(x, y, app) {
-            currentApp = app
-            contextMenu.x = x + 4
-            contextMenu.y = y + 4
-            contextMenu.open()
+            currentApp = app;
+            let finalX = x + 4;
+            let finalY = y + 4;
+
+            if (contextMenu.parent) {
+                const parentWidth = contextMenu.parent.width;
+                const parentHeight = contextMenu.parent.height;
+                const menuWidth = contextMenu.width;
+                const menuHeight = contextMenu.height;
+
+                if (finalX + menuWidth > parentWidth) {
+                    finalX = Math.max(0, parentWidth - menuWidth);
+                }
+
+                if (finalY + menuHeight > parentHeight) {
+                    finalY = Math.max(0, parentHeight - menuHeight);
+                }
+            }
+
+            contextMenu.x = finalX;
+            contextMenu.y = finalY;
+            contextMenu.open();
         }
 
         function hide() {
-            contextMenu.close()
+            contextMenu.close();
         }
 
         width: Math.max(180, menuColumn.implicitWidth + Theme.spacingS * 2)
@@ -604,15 +746,15 @@ DankPopout {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         if (!contextMenu.desktopEntry) {
-                            return
+                            return;
                         }
 
                         if (contextMenu.isPinned) {
-                            SessionData.removePinnedApp(contextMenu.appId)
+                            SessionData.removePinnedApp(contextMenu.appId);
                         } else {
-                            SessionData.addPinnedApp(contextMenu.appId)
+                            SessionData.addPinnedApp(contextMenu.appId);
                         }
-                        contextMenu.hide()
+                        contextMenu.hide();
                     }
                 }
             }
@@ -678,12 +820,12 @@ DankPopout {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             if (modelData && contextMenu.desktopEntry) {
-                                SessionService.launchDesktopAction(contextMenu.desktopEntry, modelData)
+                                SessionService.launchDesktopAction(contextMenu.desktopEntry, modelData);
                                 if (contextMenu.currentApp) {
-                                    appLauncher.appLaunched(contextMenu.currentApp)
+                                    appLauncher.appLaunched(contextMenu.currentApp);
                                 }
                             }
-                            contextMenu.hide()
+                            contextMenu.hide();
                         }
                     }
                 }
@@ -741,9 +883,9 @@ DankPopout {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         if (contextMenu.currentApp)
-                            appLauncher.launchApp(contextMenu.currentApp)
+                            appLauncher.launchApp(contextMenu.currentApp);
 
-                        contextMenu.hide()
+                        contextMenu.hide();
                     }
                 }
             }
@@ -801,34 +943,14 @@ DankPopout {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         if (contextMenu.desktopEntry) {
-                            SessionService.launchDesktopEntry(contextMenu.desktopEntry, true)
+                            SessionService.launchDesktopEntry(contextMenu.desktopEntry, true);
                             if (contextMenu.currentApp) {
-                                appLauncher.appLaunched(contextMenu.currentApp)
+                                appLauncher.appLaunched(contextMenu.currentApp);
                             }
                         }
-                        contextMenu.hide()
+                        contextMenu.hide();
                     }
                 }
-            }
-        }
-    }
-
-    MouseArea {
-        anchors.fill: parent
-        visible: contextMenu.visible
-        z: 999
-        onClicked: {
-            contextMenu.hide()
-        }
-
-        MouseArea {
-            x: contextMenu.x
-            y: contextMenu.y
-            width: contextMenu.width
-            height: contextMenu.height
-            onClicked: {
-
-                // Prevent closing when clicking on the menu itself
             }
         }
     }

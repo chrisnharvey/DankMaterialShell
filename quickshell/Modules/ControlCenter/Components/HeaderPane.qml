@@ -99,10 +99,10 @@ Rectangle {
         //     backgroundColor: "transparent"
         //     onClicked: {
         //         root.settingsButtonClicked();
-        //         settingsModal.show();
+        //        PopoutService.focusOrToggleSettings();
         //     }
         // }
-        //
+
         // DankActionButton {
         //     buttonSize: 36
         //     iconName: editMode ? "done" : "edit"

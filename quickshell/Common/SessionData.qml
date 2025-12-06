@@ -30,6 +30,11 @@ Singleton {
         onTriggered: root.suppressOSD = false
     }
 
+    function suppressOSDTemporarily() {
+        suppressOSD = true;
+        osdSuppressTimer.restart();
+    }
+
     Connections {
         target: SessionService
         function onSessionResumed() {
@@ -86,6 +91,7 @@ Singleton {
     property var enabledGpuPciIds: []
 
     property string wifiDeviceOverride: ""
+    property bool weatherHourlyDetailed: true
 
     Component.onCompleted: {
         if (!isGreeterMode) {
@@ -157,6 +163,7 @@ Singleton {
                 nonNvidiaGpuTempEnabled = settings.nonNvidiaGpuTempEnabled !== undefined ? settings.nonNvidiaGpuTempEnabled : false;
                 enabledGpuPciIds = settings.enabledGpuPciIds !== undefined ? settings.enabledGpuPciIds : [];
                 wifiDeviceOverride = settings.wifiDeviceOverride !== undefined ? settings.wifiDeviceOverride : "";
+                weatherHourlyDetailed = settings.weatherHourlyDetailed !== undefined ? settings.weatherHourlyDetailed : true;
                 wallpaperCyclingEnabled = settings.wallpaperCyclingEnabled !== undefined ? settings.wallpaperCyclingEnabled : false;
                 wallpaperCyclingMode = settings.wallpaperCyclingMode !== undefined ? settings.wallpaperCyclingMode : "interval";
                 wallpaperCyclingInterval = settings.wallpaperCyclingInterval !== undefined ? settings.wallpaperCyclingInterval : 300;
@@ -226,6 +233,7 @@ Singleton {
             "nonNvidiaGpuTempEnabled": nonNvidiaGpuTempEnabled,
             "enabledGpuPciIds": enabledGpuPciIds,
             "wifiDeviceOverride": wifiDeviceOverride,
+            "weatherHourlyDetailed": weatherHourlyDetailed,
             "wallpaperCyclingEnabled": wallpaperCyclingEnabled,
             "wallpaperCyclingMode": wallpaperCyclingMode,
             "wallpaperCyclingInterval": wallpaperCyclingInterval,
@@ -290,7 +298,7 @@ Singleton {
     }
 
     function cleanupUnusedKeys() {
-        const validKeys = ["isLightMode", "wallpaperPath", "perMonitorWallpaper", "monitorWallpapers", "perModeWallpaper", "wallpaperPathLight", "wallpaperPathDark", "monitorWallpapersLight", "monitorWallpapersDark", "doNotDisturb", "nightModeEnabled", "nightModeTemperature", "nightModeHighTemperature", "nightModeAutoEnabled", "nightModeAutoMode", "nightModeStartHour", "nightModeStartMinute", "nightModeEndHour", "nightModeEndMinute", "latitude", "longitude", "nightModeUseIPLocation", "nightModeLocationProvider", "pinnedApps", "hiddenTrayIds", "selectedGpuIndex", "nvidiaGpuTempEnabled", "nonNvidiaGpuTempEnabled", "enabledGpuPciIds", "wifiDeviceOverride", "wallpaperCyclingEnabled", "wallpaperCyclingMode", "wallpaperCyclingInterval", "wallpaperCyclingTime", "monitorCyclingSettings", "lastBrightnessDevice", "brightnessExponentialDevices", "brightnessUserSetValues", "brightnessExponentValues", "launchPrefix", "wallpaperTransition", "includedTransitions", "recentColors", "showThirdPartyPlugins", "configVersion"];
+        const validKeys = ["isLightMode", "wallpaperPath", "perMonitorWallpaper", "monitorWallpapers", "perModeWallpaper", "wallpaperPathLight", "wallpaperPathDark", "monitorWallpapersLight", "monitorWallpapersDark", "doNotDisturb", "nightModeEnabled", "nightModeTemperature", "nightModeHighTemperature", "nightModeAutoEnabled", "nightModeAutoMode", "nightModeStartHour", "nightModeStartMinute", "nightModeEndHour", "nightModeEndMinute", "latitude", "longitude", "nightModeUseIPLocation", "nightModeLocationProvider", "pinnedApps", "hiddenTrayIds", "selectedGpuIndex", "nvidiaGpuTempEnabled", "nonNvidiaGpuTempEnabled", "enabledGpuPciIds", "wifiDeviceOverride", "weatherHourlyDetailed", "wallpaperCyclingEnabled", "wallpaperCyclingMode", "wallpaperCyclingInterval", "wallpaperCyclingTime", "monitorCyclingSettings", "lastBrightnessDevice", "brightnessExponentialDevices", "brightnessUserSetValues", "brightnessExponentValues", "launchPrefix", "wallpaperTransition", "includedTransitions", "recentColors", "showThirdPartyPlugins", "configVersion"];
 
         try {
             const content = settingsFile.text();
@@ -853,6 +861,13 @@ Singleton {
         return brightnessUserSetValues[deviceName];
     }
 
+    function clearBrightnessUserSetValue(deviceName) {
+        var newValues = Object.assign({}, brightnessUserSetValues);
+        delete newValues[deviceName];
+        brightnessUserSetValues = newValues;
+        saveSettings();
+    }
+
     function setBrightnessExponent(deviceName, exponent) {
         var newValues = Object.assign({}, brightnessExponentValues);
         if (exponent !== undefined && exponent !== null) {
@@ -891,6 +906,11 @@ Singleton {
 
     function setWifiDeviceOverride(device) {
         wifiDeviceOverride = device || "";
+        saveSettings();
+    }
+
+    function setWeatherHourlyDetailed(detailed) {
+        weatherHourlyDetailed = detailed;
         saveSettings();
     }
 

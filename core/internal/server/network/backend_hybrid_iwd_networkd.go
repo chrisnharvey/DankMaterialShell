@@ -2,14 +2,12 @@ package network
 
 import (
 	"fmt"
-	"sync"
 )
 
 type HybridIwdNetworkdBackend struct {
 	wifi          *IWDBackend
 	l3            *SystemdNetworkdBackend
 	onStateChange func()
-	stateMutex    sync.RWMutex
 }
 
 func NewHybridIwdNetworkdBackend(w *IWDBackend, n *SystemdNetworkdBackend) (*HybridIwdNetworkdBackend, error) {
@@ -120,7 +118,7 @@ func (b *HybridIwdNetworkdBackend) ConnectWiFi(req ConnectionRequest) error {
 
 	ws, err := b.wifi.GetCurrentState()
 	if err == nil && ws.WiFiDevice != "" {
-		b.l3.EnsureDhcpUp(ws.WiFiDevice)
+		b.l3.EnsureDhcpUp(ws.WiFiDevice) //nolint:errcheck
 	}
 
 	return nil
@@ -198,7 +196,7 @@ func (b *HybridIwdNetworkdBackend) GetVPNConfig(uuidOrName string) (*VPNConfig, 
 	return nil, fmt.Errorf("VPN not supported in hybrid mode")
 }
 
-func (b *HybridIwdNetworkdBackend) UpdateVPNConfig(uuid string, updates map[string]interface{}) error {
+func (b *HybridIwdNetworkdBackend) UpdateVPNConfig(uuid string, updates map[string]any) error {
 	return fmt.Errorf("VPN not supported in hybrid mode")
 }
 

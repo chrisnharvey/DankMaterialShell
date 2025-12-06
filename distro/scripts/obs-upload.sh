@@ -169,6 +169,7 @@ fi
 
 CHANGELOG_VERSION=""
 if [[ -d "distro/debian/$PACKAGE/debian" ]]; then
+    # Format: 0.6.2+git{COMMIT_COUNT}.{COMMIT_HASH} (e.g., 0.6.2+git2256.9162e314)
     CHANGELOG_VERSION=$(grep -m1 "^$PACKAGE" "distro/debian/$PACKAGE/debian/changelog" 2>/dev/null | sed 's/.*(\([^)]*\)).*/\1/' || echo "")
     if [[ -n "$CHANGELOG_VERSION" ]] && [[ "$CHANGELOG_VERSION" == *"-"* ]]; then
         SOURCE_FORMAT_CHECK=$(cat "distro/debian/$PACKAGE/debian/source/format" 2>/dev/null || echo "3.0 (quilt)")
@@ -477,11 +478,11 @@ if [[ "$UPLOAD_DEBIAN" == true ]] && [[ -d "distro/debian/$PACKAGE/debian" ]]; t
                         echo "    Creating $SOURCE0 (directory: $DIR_NAME)"
                         cp -r "$SOURCE_DIR" "$DIR_NAME"
                         if [[ "$SOURCE0" == *.tar.xz ]]; then
-                            tar --sort=name --mtime='2000-01-01 00:00:00' -cJf "$WORK_DIR/$SOURCE0" "$DIR_NAME"
+                            tar --sort=name --mtime='2000-01-01 00:00:00' --owner=0 --group=0 -cJf "$WORK_DIR/$SOURCE0" "$DIR_NAME"
                         elif [[ "$SOURCE0" == *.tar.bz2 ]]; then
-                            tar --sort=name --mtime='2000-01-01 00:00:00' -cjf "$WORK_DIR/$SOURCE0" "$DIR_NAME"
+                            tar --sort=name --mtime='2000-01-01 00:00:00' --owner=0 --group=0 -cjf "$WORK_DIR/$SOURCE0" "$DIR_NAME"
                         else
-                            tar --sort=name --mtime='2000-01-01 00:00:00' -czf "$WORK_DIR/$SOURCE0" "$DIR_NAME"
+                            tar --sort=name --mtime='2000-01-01 00:00:00' --owner=0 --group=0 -czf "$WORK_DIR/$SOURCE0" "$DIR_NAME"
                         fi
                         rm -rf "$DIR_NAME"
                         echo "    Created $SOURCE0 ($(stat -c%s "$WORK_DIR/$SOURCE0" 2>/dev/null || echo 0) bytes)"
@@ -618,15 +619,15 @@ fi
 
 # Only auto-increment on manual runs (REBUILD_RELEASE set or not in CI), not automated workflows
 OLD_DSC_FILE=""
-if [[ -f "$WORK_DIR/$PACKAGE.dsc" ]]; then
-    OLD_DSC_FILE="$WORK_DIR/$PACKAGE.dsc"
-elif [[ -f "$WORK_DIR/.osc/sources/$PACKAGE.dsc" ]]; then
+if [[ -f "$WORK_DIR/.osc/sources/$PACKAGE.dsc" ]]; then
     OLD_DSC_FILE="$WORK_DIR/.osc/sources/$PACKAGE.dsc"
+elif [[ -f "$WORK_DIR/.osc/$PACKAGE.dsc" ]]; then
+    OLD_DSC_FILE="$WORK_DIR/.osc/$PACKAGE.dsc"
 fi
 
 if [[ "$UPLOAD_DEBIAN" == true ]] && [[ "$SOURCE_FORMAT" == *"native"* ]] && [[ -n "$OLD_DSC_FILE" ]]; then
     OLD_DSC_VERSION=$(grep "^Version:" "$OLD_DSC_FILE" 2>/dev/null | awk '{print $2}' | head -1)
-    
+
     IS_MANUAL=false
     if [[ -n "${REBUILD_RELEASE:-}" ]]; then
         IS_MANUAL=true
@@ -638,20 +639,17 @@ if [[ "$UPLOAD_DEBIAN" == true ]] && [[ "$SOURCE_FORMAT" == *"native"* ]] && [[ 
         IS_MANUAL=true
         echo "==> Local/manual run detected (not in CI)"
     fi
-    
-    if [[ -n "$OLD_DSC_VERSION" ]] && [[ "$OLD_DSC_VERSION" == "$CHANGELOG_VERSION" ]] && [[ "$IS_MANUAL" == true ]]; then
-        echo "==> Detected rebuild of same version $CHANGELOG_VERSION, incrementing version"
+
+    CHANGELOG_BASE=$(echo "$CHANGELOG_VERSION" | sed 's/ppa[0-9]*$//')
+    OLD_DSC_BASE=$(echo "$OLD_DSC_VERSION" | sed 's/ppa[0-9]*$//')
+
+    if [[ -n "$OLD_DSC_VERSION" ]] && [[ "$OLD_DSC_BASE" == "$CHANGELOG_BASE" ]] && [[ "$IS_MANUAL" == true ]]; then
+        echo "==> Detected rebuild of same base version $CHANGELOG_BASE, incrementing version"
         
         if [[ "$CHANGELOG_VERSION" =~ ^([0-9.]+)\+git$ ]]; then
             BASE_VERSION="${BASH_REMATCH[1]}"
-            NEW_VERSION="${BASE_VERSION}+git1"
-            echo "  Incrementing git number: $CHANGELOG_VERSION -> $NEW_VERSION"
-        elif [[ "$CHANGELOG_VERSION" =~ ^([0-9.]+)\+git([0-9]+)$ ]]; then
-            BASE_VERSION="${BASH_REMATCH[1]}"
-            GIT_NUM="${BASH_REMATCH[2]}"
-            NEW_GIT_NUM=$((GIT_NUM + 1))
-            NEW_VERSION="${BASE_VERSION}+git${NEW_GIT_NUM}"
-            echo "  Incrementing git number: $CHANGELOG_VERSION -> $NEW_VERSION"
+            NEW_VERSION="${BASE_VERSION}+gitppa1"
+            echo "  Adding PPA number: $CHANGELOG_VERSION -> $NEW_VERSION"
         elif [[ "$CHANGELOG_VERSION" =~ ^([0-9.]+)ppa([0-9]+)$ ]]; then
             BASE_VERSION="${BASH_REMATCH[1]}"
             PPA_NUM="${BASH_REMATCH[2]}"
@@ -663,7 +661,14 @@ if [[ "$UPLOAD_DEBIAN" == true ]] && [[ "$SOURCE_FORMAT" == *"native"* ]] && [[ 
             GIT_NUM="${BASH_REMATCH[2]}"
             GIT_HASH="${BASH_REMATCH[3]}"
             PPA_NUM="${BASH_REMATCH[5]}"
-            if [[ -n "$PPA_NUM" ]]; then
+
+            # Check if old DSC has ppa suffix even if changelog doesn't
+            if [[ -z "$PPA_NUM" ]] && [[ "$OLD_DSC_VERSION" =~ ppa([0-9]+)$ ]]; then
+                OLD_PPA_NUM="${BASH_REMATCH[1]}"
+                NEW_PPA_NUM=$((OLD_PPA_NUM + 1))
+                NEW_VERSION="${BASE_VERSION}+git${GIT_NUM}${GIT_HASH}ppa${NEW_PPA_NUM}"
+                echo "  Incrementing PPA number from old DSC: $OLD_DSC_VERSION -> $NEW_VERSION"
+            elif [[ -n "$PPA_NUM" ]]; then
                 NEW_PPA_NUM=$((PPA_NUM + 1))
                 NEW_VERSION="${BASE_VERSION}+git${GIT_NUM}${GIT_HASH}ppa${NEW_PPA_NUM}"
                 echo "  Incrementing PPA number: $CHANGELOG_VERSION -> $NEW_VERSION"

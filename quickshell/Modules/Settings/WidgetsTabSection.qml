@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import qs.Common
 import qs.Widgets
 import qs.Services
@@ -34,7 +35,7 @@ Column {
     height: implicitHeight
     spacing: Theme.spacingM
 
-    Row {
+    RowLayout {
         width: parent.width
         spacing: Theme.spacingM
 
@@ -42,7 +43,7 @@ Column {
             name: root.titleIcon
             size: Theme.iconSize
             color: Theme.primary
-            anchors.verticalCenter: parent.verticalCenter
+            Layout.alignment: Qt.AlignVCenter
         }
 
         StyledText {
@@ -50,12 +51,54 @@ Column {
             font.pixelSize: Theme.fontSizeLarge
             font.weight: Font.Medium
             color: Theme.surfaceText
-            anchors.verticalCenter: parent.verticalCenter
+            Layout.alignment: Qt.AlignVCenter
         }
 
         Item {
-            width: parent.width - 60
             height: 1
+            Layout.fillWidth: true
+        }
+
+        RowLayout {
+            spacing: Theme.spacingXS
+            Layout.alignment: Qt.AlignVCenter
+            visible: root.sectionId === "center"
+
+            DankActionButton {
+                id: indexCenterButton
+                buttonSize: 28
+                iconName: "format_list_numbered"
+                iconSize: 16
+                iconColor: SettingsData.centeringMode === "index" ? Theme.primary : Theme.outline
+                onClicked: {
+                    console.log("Centering mode changed to: index");
+                    SettingsData.set("centeringMode", "index");
+                }
+                onEntered: {
+                    sharedTooltip.show("Index Centering", indexCenterButton, 0, 0, "bottom");
+                }
+                onExited: {
+                    sharedTooltip.hide();
+                }
+            }
+
+            DankActionButton {
+                id: geometricCenterButton
+                buttonSize: 28
+                iconName: "center_focus_weak"
+                iconSize: 16
+                iconColor: SettingsData.centeringMode === "geometric" ? Theme.primary : Theme.outline
+                onClicked: {
+                    console.log("Centering mode changed to: geometric");
+                    SettingsData.set("centeringMode", "geometric");
+                }
+                onEntered: {
+                    sharedTooltip.show("Geometric Centering", geometricCenterButton, 0, 0, "bottom");
+                }
+                onExited: {
+                    sharedTooltip.hide();
+                }
+            }
         }
     }
 
@@ -125,7 +168,17 @@ Column {
                         }
 
                         StyledText {
-                            text: modelData.description
+                            text: {
+                                if (modelData.id === "gpuTemp") {
+                                    var selectedIdx = modelData.selectedGpuIndex !== undefined ? modelData.selectedGpuIndex : 0;
+                                    if (DgopService.availableGpus && DgopService.availableGpus.length > selectedIdx) {
+                                        var gpu = DgopService.availableGpus[selectedIdx];
+                                        return gpu.driver ? gpu.driver.toUpperCase() : "";
+                                    }
+                                    return I18n.tr("No GPU detected");
+                                }
+                                return modelData.description;
+                            }
                             font.pixelSize: Theme.fontSizeSmall
                             color: modelData.enabled ? Theme.outline : Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.6)
                             elide: Text.ElideRight
@@ -142,39 +195,37 @@ Column {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: Theme.spacingXS
 
-                        Item {
-                            width: 60
-                            height: 32
+                        DankActionButton {
+                            id: gpuMenuButton
                             visible: modelData.id === "gpuTemp"
+                            buttonSize: 32
+                            iconName: "more_vert"
+                            iconSize: 18
+                            iconColor: Theme.outline
+                            onClicked: {
+                                gpuContextMenu.widgetData = modelData;
+                                gpuContextMenu.sectionId = root.sectionId;
+                                gpuContextMenu.widgetIndex = index;
 
-                            DankDropdown {
-                                id: gpuDropdown
-                                anchors.fill: parent
-                                popupWidth: -1
-                                currentValue: {
-                                    var selectedIndex = modelData.selectedGpuIndex !== undefined ? modelData.selectedGpuIndex : 0;
-                                    if (DgopService.availableGpus && DgopService.availableGpus.length > selectedIndex && selectedIndex >= 0) {
-                                        var gpu = DgopService.availableGpus[selectedIndex];
-                                        return gpu.driver.toUpperCase();
-                                    }
-                                    return DgopService.availableGpus && DgopService.availableGpus.length > 0 ? DgopService.availableGpus[0].driver.toUpperCase() : "";
+                                var buttonPos = gpuMenuButton.mapToItem(root, 0, 0);
+                                var popupWidth = gpuContextMenu.width;
+                                var popupHeight = gpuContextMenu.height;
+
+                                var xPos = buttonPos.x - popupWidth - Theme.spacingS;
+                                if (xPos < 0) {
+                                    xPos = buttonPos.x + gpuMenuButton.width + Theme.spacingS;
                                 }
-                                options: {
-                                    var gpuOptions = [];
-                                    if (DgopService.availableGpus && DgopService.availableGpus.length > 0) {
-                                        for (var i = 0; i < DgopService.availableGpus.length; i++) {
-                                            var gpu = DgopService.availableGpus[i];
-                                            gpuOptions.push(gpu.driver.toUpperCase());
-                                        }
-                                    }
-                                    return gpuOptions;
+
+                                var yPos = buttonPos.y - popupHeight / 2 + gpuMenuButton.height / 2;
+                                if (yPos < 0) {
+                                    yPos = Theme.spacingS;
+                                } else if (yPos + popupHeight > root.height) {
+                                    yPos = root.height - popupHeight - Theme.spacingS;
                                 }
-                                onValueChanged: value => {
-                                    var gpuIndex = options.indexOf(value);
-                                    if (gpuIndex >= 0) {
-                                        root.gpuSelectionChanged(root.sectionId, index, gpuIndex);
-                                    }
-                                }
+
+                                gpuContextMenu.x = xPos;
+                                gpuContextMenu.y = yPos;
+                                gpuContextMenu.open();
                             }
                         }
 
@@ -1074,6 +1125,114 @@ Column {
                         onPressed: {
                             screenshareToggle.checked = !screenshareToggle.checked;
                             root.privacySettingChanged(privacyContextMenu.sectionId, privacyContextMenu.widgetIndex, "showScreenSharingIcon", screenshareToggle.checked);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Popup {
+        id: gpuContextMenu
+
+        property var widgetData: null
+        property string sectionId: ""
+        property int widgetIndex: -1
+
+        width: 250
+        height: gpuMenuColumn.implicitHeight + Theme.spacingS * 2
+        padding: 0
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        background: Rectangle {
+            color: Theme.withAlpha(Theme.surfaceContainer, Theme.popupTransparency)
+            radius: Theme.cornerRadius
+            border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.08)
+            border.width: 0
+        }
+
+        contentItem: Item {
+            Column {
+                id: gpuMenuColumn
+                anchors.fill: parent
+                anchors.margins: Theme.spacingS
+                spacing: 2
+
+                Repeater {
+                    model: DgopService.availableGpus || []
+
+                    delegate: Rectangle {
+                        required property var modelData
+                        required property int index
+
+                        width: gpuMenuColumn.width
+                        height: 40
+                        radius: Theme.cornerRadius
+                        color: gpuOptionArea.containsMouse ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12) : "transparent"
+
+                        property bool isSelected: {
+                            var selectedIdx = gpuContextMenu.widgetData ? (gpuContextMenu.widgetData.selectedGpuIndex !== undefined ? gpuContextMenu.widgetData.selectedGpuIndex : 0) : 0;
+                            return index === selectedIdx;
+                        }
+
+                        Row {
+                            anchors.left: parent.left
+                            anchors.leftMargin: Theme.spacingS
+                            anchors.right: checkIcon.left
+                            anchors.rightMargin: Theme.spacingS
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: Theme.spacingS
+
+                            DankIcon {
+                                name: "memory"
+                                size: 18
+                                color: isSelected ? Theme.primary : Theme.surfaceText
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+
+                            Column {
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 2
+
+                                StyledText {
+                                    text: modelData.driver ? modelData.driver.toUpperCase() : ""
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    font.weight: Font.Medium
+                                    color: isSelected ? Theme.primary : Theme.surfaceText
+                                }
+
+                                StyledText {
+                                    text: modelData.displayName || ""
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    color: Theme.surfaceVariantText
+                                    elide: Text.ElideRight
+                                    width: 180
+                                }
+                            }
+                        }
+
+                        DankIcon {
+                            id: checkIcon
+                            anchors.right: parent.right
+                            anchors.rightMargin: Theme.spacingS
+                            anchors.verticalCenter: parent.verticalCenter
+                            name: "check"
+                            size: 18
+                            color: Theme.primary
+                            visible: isSelected
+                        }
+
+                        MouseArea {
+                            id: gpuOptionArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                root.gpuSelectionChanged(gpuContextMenu.sectionId, gpuContextMenu.widgetIndex, index);
+                                gpuContextMenu.close();
+                            }
                         }
                     }
                 }

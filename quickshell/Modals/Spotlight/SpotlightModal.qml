@@ -12,7 +12,7 @@ DankModal {
 
     HyprlandFocusGrab {
         windows: [spotlightModal.contentWindow]
-        active: CompositorService.isHyprland && spotlightModal.shouldHaveFocus
+        active: spotlightModal.useHyprlandFocusGrab && spotlightModal.shouldHaveFocus
     }
 
     property bool spotlightOpen: false
@@ -93,6 +93,10 @@ DankModal {
     borderWidth: 1
     enableShadow: true
     keepContentLoaded: true
+    animationScaleCollapsed: 0.96
+    animationDuration: Theme.expressiveDurations.expressiveDefaultSpatial
+    animationEnterCurve: Theme.expressiveCurves.expressiveDefaultSpatial
+    animationExitCurve: Theme.expressiveCurves.emphasized
     onVisibleChanged: () => {
         if (visible && !spotlightOpen) {
             show();

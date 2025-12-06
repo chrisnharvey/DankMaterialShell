@@ -63,7 +63,10 @@ install -d %{buildroot}%{_datadir}/fish/vendor_completions.d
 ./dms completion zsh > %{buildroot}%{_datadir}/zsh/site-functions/_dms || :
 ./dms completion fish > %{buildroot}%{_datadir}/fish/vendor_completions.d/dms.fish || :
 
-install -Dm644 quickshell/assets/systemd/dms.service %{buildroot}%{_userunitdir}/dms.service
+install -Dm644 assets/systemd/dms.service %{buildroot}%{_userunitdir}/dms.service
+
+install -Dm644 assets/dms-open.desktop %{buildroot}%{_datadir}/applications/dms-open.desktop
+install -Dm644 assets/danklogo.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/danklogo.svg
 
 install -dm755 %{buildroot}%{_datadir}/quickshell/dms
 cp -r quickshell/* %{buildroot}%{_datadir}/quickshell/dms/
@@ -74,12 +77,9 @@ rm -rf %{buildroot}%{_datadir}/quickshell/dms/.github
 rm -rf %{buildroot}%{_datadir}/quickshell/dms/distro
 rm -rf %{buildroot}%{_datadir}/quickshell/dms/core
 
+echo "%{version}" > %{buildroot}%{_datadir}/quickshell/dms/VERSION
+
 %posttrans
-if [ -d "%{_sysconfdir}/xdg/quickshell/dms" ]; then
-    rmdir "%{_sysconfdir}/xdg/quickshell/dms" 2>/dev/null || true
-    rmdir "%{_sysconfdir}/xdg/quickshell" 2>/dev/null || true
-    rmdir "%{_sysconfdir}/xdg" 2>/dev/null || true
-fi
 
 if [ "$1" -ge 2 ]; then
   pkill -USR1 -x dms >/dev/null 2>&1 || true
@@ -100,6 +100,11 @@ fi
 %dir %{_datadir}/quickshell
 %{_datadir}/quickshell/dms/
 %{_userunitdir}/dms.service
+%{_datadir}/applications/dms-open.desktop
+%dir %{_datadir}/icons/hicolor
+%dir %{_datadir}/icons/hicolor/scalable
+%dir %{_datadir}/icons/hicolor/scalable/apps
+%{_datadir}/icons/hicolor/scalable/apps/danklogo.svg
 
 %changelog
 * Fri Nov 22 2025 AvengeMedia <maintainer@avengemedia.com> - 0.6.2-1

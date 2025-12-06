@@ -61,7 +61,6 @@ func (d *DebianDistribution) DetectDependenciesWithTerminal(ctx context.Context,
 	dependencies = append(dependencies, d.detectWindowManager(wm))
 	dependencies = append(dependencies, d.detectQuickshell())
 	dependencies = append(dependencies, d.detectXDGPortal())
-	dependencies = append(dependencies, d.detectPolkitAgent())
 	dependencies = append(dependencies, d.detectAccountsService())
 
 	if wm == deps.WindowManagerNiri {
@@ -70,7 +69,6 @@ func (d *DebianDistribution) DetectDependenciesWithTerminal(ctx context.Context,
 
 	dependencies = append(dependencies, d.detectMatugen())
 	dependencies = append(dependencies, d.detectDgop())
-	dependencies = append(dependencies, d.detectHyprpicker())
 	dependencies = append(dependencies, d.detectClipboardTools()...)
 
 	return dependencies, nil
@@ -86,20 +84,6 @@ func (d *DebianDistribution) detectXDGPortal() deps.Dependency {
 		Name:        "xdg-desktop-portal-gtk",
 		Status:      status,
 		Description: "Desktop integration portal for GTK",
-		Required:    true,
-	}
-}
-
-func (d *DebianDistribution) detectPolkitAgent() deps.Dependency {
-	status := deps.StatusMissing
-	if d.packageInstalled("mate-polkit") {
-		status = deps.StatusInstalled
-	}
-
-	return deps.Dependency{
-		Name:        "mate-polkit",
-		Status:      status,
-		Description: "PolicyKit authentication agent",
 		Required:    true,
 	}
 }
@@ -139,31 +123,63 @@ func (d *DebianDistribution) packageInstalled(pkg string) bool {
 }
 
 func (d *DebianDistribution) GetPackageMapping(wm deps.WindowManager) map[string]PackageMapping {
+	return d.GetPackageMappingWithVariants(wm, make(map[string]deps.PackageVariant))
+}
+
+func (d *DebianDistribution) GetPackageMappingWithVariants(wm deps.WindowManager, variants map[string]deps.PackageVariant) map[string]PackageMapping {
 	packages := map[string]PackageMapping{
+		// Standard APT packages
 		"git":                    {Name: "git", Repository: RepoTypeSystem},
 		"kitty":                  {Name: "kitty", Repository: RepoTypeSystem},
 		"alacritty":              {Name: "alacritty", Repository: RepoTypeSystem},
 		"wl-clipboard":           {Name: "wl-clipboard", Repository: RepoTypeSystem},
 		"xdg-desktop-portal-gtk": {Name: "xdg-desktop-portal-gtk", Repository: RepoTypeSystem},
-		"mate-polkit":            {Name: "mate-polkit", Repository: RepoTypeSystem},
 		"accountsservice":        {Name: "accountsservice", Repository: RepoTypeSystem},
 
-		"dms (DankMaterialShell)": {Name: "dms", Repository: RepoTypeManual, BuildFunc: "installDankMaterialShell"},
-		"niri":                    {Name: "niri", Repository: RepoTypeManual, BuildFunc: "installNiri"},
-		"quickshell":              {Name: "quickshell", Repository: RepoTypeManual, BuildFunc: "installQuickshell"},
-		"ghostty":                 {Name: "ghostty", Repository: RepoTypeManual, BuildFunc: "installGhostty"},
-		"matugen":                 {Name: "matugen", Repository: RepoTypeManual, BuildFunc: "installMatugen"},
-		"dgop":                    {Name: "dgop", Repository: RepoTypeManual, BuildFunc: "installDgop"},
-		"cliphist":                {Name: "cliphist", Repository: RepoTypeManual, BuildFunc: "installCliphist"},
-		"hyprpicker":              {Name: "hyprpicker", Repository: RepoTypeManual, BuildFunc: "installHyprpicker"},
+		// DMS packages from OBS with variant support
+		"dms (DankMaterialShell)": d.getDmsMapping(variants["dms (DankMaterialShell)"]),
+		"quickshell":              d.getQuickshellMapping(variants["quickshell"]),
+		"matugen":                 {Name: "matugen", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"},
+		"dgop":                    {Name: "dgop", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"},
+		"cliphist":                {Name: "cliphist", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"},
+		"ghostty":                 {Name: "ghostty", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"},
 	}
 
 	if wm == deps.WindowManagerNiri {
-		packages["niri"] = PackageMapping{Name: "niri", Repository: RepoTypeManual, BuildFunc: "installNiri"}
-		packages["xwayland-satellite"] = PackageMapping{Name: "xwayland-satellite", Repository: RepoTypeManual, BuildFunc: "installXwaylandSatellite"}
+		niriVariant := variants["niri"]
+		packages["niri"] = d.getNiriMapping(niriVariant)
+		packages["xwayland-satellite"] = d.getXwaylandSatelliteMapping(niriVariant)
 	}
 
 	return packages
+}
+
+func (d *DebianDistribution) getDmsMapping(variant deps.PackageVariant) PackageMapping {
+	if variant == deps.VariantGit {
+		return PackageMapping{Name: "dms-git", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:dms-git"}
+	}
+	return PackageMapping{Name: "dms", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:dms"}
+}
+
+func (d *DebianDistribution) getQuickshellMapping(variant deps.PackageVariant) PackageMapping {
+	if forceQuickshellGit || variant == deps.VariantGit {
+		return PackageMapping{Name: "quickshell-git", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"}
+	}
+	return PackageMapping{Name: "quickshell", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"}
+}
+
+func (d *DebianDistribution) getNiriMapping(variant deps.PackageVariant) PackageMapping {
+	if variant == deps.VariantGit {
+		return PackageMapping{Name: "niri-git", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"}
+	}
+	return PackageMapping{Name: "niri", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"}
+}
+
+func (d *DebianDistribution) getXwaylandSatelliteMapping(variant deps.PackageVariant) PackageMapping {
+	if variant == deps.VariantGit {
+		return PackageMapping{Name: "xwayland-satellite-git", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"}
+	}
+	return PackageMapping{Name: "xwayland-satellite", Repository: RepoTypeOBS, RepoURL: "home:AvengeMedia:danklinux"}
 }
 
 func (d *DebianDistribution) InstallPrerequisites(ctx context.Context, sudoPassword string, progressChan chan<- InstallProgressMsg) error {
@@ -238,8 +254,23 @@ func (d *DebianDistribution) InstallPackages(ctx context.Context, dependencies [
 		return fmt.Errorf("failed to install prerequisites: %w", err)
 	}
 
-	systemPkgs, manualPkgs, variantMap := d.categorizePackages(dependencies, wm, reinstallFlags, disabledFlags)
+	systemPkgs, obsPkgs, manualPkgs, variantMap := d.categorizePackages(dependencies, wm, reinstallFlags, disabledFlags)
 
+	// Enable OBS repositories
+	if len(obsPkgs) > 0 {
+		progressChan <- InstallProgressMsg{
+			Phase:      PhaseSystemPackages,
+			Progress:   0.15,
+			Step:       "Enabling OBS repositories...",
+			IsComplete: false,
+			LogOutput:  "Setting up OBS repositories for additional packages",
+		}
+		if err := d.enableOBSRepos(ctx, obsPkgs, sudoPassword, progressChan); err != nil {
+			return fmt.Errorf("failed to enable OBS repositories: %w", err)
+		}
+	}
+
+	// System Packages
 	if len(systemPkgs) > 0 {
 		progressChan <- InstallProgressMsg{
 			Phase:      PhaseSystemPackages,
@@ -254,6 +285,22 @@ func (d *DebianDistribution) InstallPackages(ctx context.Context, dependencies [
 		}
 	}
 
+	// OBS Packages
+	obsPkgNames := d.extractPackageNames(obsPkgs)
+	if len(obsPkgNames) > 0 {
+		progressChan <- InstallProgressMsg{
+			Phase:      PhaseAURPackages,
+			Progress:   0.65,
+			Step:       fmt.Sprintf("Installing %d OBS packages...", len(obsPkgNames)),
+			IsComplete: false,
+			LogOutput:  fmt.Sprintf("Installing OBS packages: %s", strings.Join(obsPkgNames, ", ")),
+		}
+		if err := d.installAPTPackages(ctx, obsPkgNames, sudoPassword, progressChan); err != nil {
+			return fmt.Errorf("failed to install OBS packages: %w", err)
+		}
+	}
+
+	// Manual Builds
 	if len(manualPkgs) > 0 {
 		progressChan <- InstallProgressMsg{
 			Phase:      PhaseSystemPackages,
@@ -297,8 +344,9 @@ func (d *DebianDistribution) InstallPackages(ctx context.Context, dependencies [
 	return nil
 }
 
-func (d *DebianDistribution) categorizePackages(dependencies []deps.Dependency, wm deps.WindowManager, reinstallFlags map[string]bool, disabledFlags map[string]bool) ([]string, []string, map[string]deps.PackageVariant) {
+func (d *DebianDistribution) categorizePackages(dependencies []deps.Dependency, wm deps.WindowManager, reinstallFlags map[string]bool, disabledFlags map[string]bool) ([]string, []PackageMapping, []string, map[string]deps.PackageVariant) {
 	systemPkgs := []string{}
+	obsPkgs := []PackageMapping{}
 	manualPkgs := []string{}
 
 	variantMap := make(map[string]deps.PackageVariant)
@@ -306,7 +354,7 @@ func (d *DebianDistribution) categorizePackages(dependencies []deps.Dependency, 
 		variantMap[dep.Name] = dep.Variant
 	}
 
-	packageMap := d.GetPackageMapping(wm)
+	packageMap := d.GetPackageMappingWithVariants(wm, variantMap)
 
 	for _, dep := range dependencies {
 		if disabledFlags[dep.Name] {
@@ -326,12 +374,116 @@ func (d *DebianDistribution) categorizePackages(dependencies []deps.Dependency, 
 		switch pkgInfo.Repository {
 		case RepoTypeSystem:
 			systemPkgs = append(systemPkgs, pkgInfo.Name)
+		case RepoTypeOBS:
+			obsPkgs = append(obsPkgs, pkgInfo)
 		case RepoTypeManual:
 			manualPkgs = append(manualPkgs, dep.Name)
 		}
 	}
 
-	return systemPkgs, manualPkgs, variantMap
+	return systemPkgs, obsPkgs, manualPkgs, variantMap
+}
+
+func (d *DebianDistribution) extractPackageNames(packages []PackageMapping) []string {
+	names := make([]string, len(packages))
+	for i, pkg := range packages {
+		names[i] = pkg.Name
+	}
+	return names
+}
+
+func (d *DebianDistribution) enableOBSRepos(ctx context.Context, obsPkgs []PackageMapping, sudoPassword string, progressChan chan<- InstallProgressMsg) error {
+	enabledRepos := make(map[string]bool)
+
+	osInfo, err := GetOSInfo()
+	if err != nil {
+		return fmt.Errorf("failed to get OS info: %w", err)
+	}
+
+	// Determine Debian version for OBS repository URL
+	debianVersion := "Debian_13"
+	if osInfo.VersionID == "testing" {
+		debianVersion = "Debian_Testing"
+	}
+
+	for _, pkg := range obsPkgs {
+		if pkg.RepoURL != "" && !enabledRepos[pkg.RepoURL] {
+			d.log(fmt.Sprintf("Enabling OBS repository: %s", pkg.RepoURL))
+
+			// RepoURL format: "home:AvengeMedia:danklinux"
+			repoPath := strings.ReplaceAll(pkg.RepoURL, ":", ":/")
+			repoName := strings.ReplaceAll(pkg.RepoURL, ":", "-")
+			baseURL := fmt.Sprintf("https://download.opensuse.org/repositories/%s/%s", repoPath, debianVersion)
+
+			// Check if repository already exists
+			listFile := fmt.Sprintf("/etc/apt/sources.list.d/%s.list", repoName)
+			checkCmd := exec.CommandContext(ctx, "test", "-f", listFile)
+			if checkCmd.Run() == nil {
+				d.log(fmt.Sprintf("OBS repo %s already exists, skipping", pkg.RepoURL))
+				enabledRepos[pkg.RepoURL] = true
+				continue
+			}
+
+			keyringPath := fmt.Sprintf("/etc/apt/keyrings/%s.gpg", repoName)
+
+			// Create keyrings directory if it doesn't exist
+			mkdirCmd := ExecSudoCommand(ctx, sudoPassword, "mkdir -p /etc/apt/keyrings")
+			if err := mkdirCmd.Run(); err != nil {
+				d.log(fmt.Sprintf("Warning: failed to create keyrings directory: %v", err))
+			}
+
+			progressChan <- InstallProgressMsg{
+				Phase:       PhaseSystemPackages,
+				Progress:    0.18,
+				Step:        fmt.Sprintf("Adding OBS GPG key for %s...", pkg.RepoURL),
+				NeedsSudo:   true,
+				CommandInfo: fmt.Sprintf("curl & gpg to add key for %s", pkg.RepoURL),
+			}
+
+			keyCmd := fmt.Sprintf("curl -fsSL %s/Release.key | gpg --dearmor -o %s", baseURL, keyringPath)
+			cmd := ExecSudoCommand(ctx, sudoPassword, keyCmd)
+			if err := d.runWithProgress(cmd, progressChan, PhaseSystemPackages, 0.18, 0.20); err != nil {
+				return fmt.Errorf("failed to add OBS GPG key for %s: %w", pkg.RepoURL, err)
+			}
+
+			// Add repository
+			repoLine := fmt.Sprintf("deb [signed-by=%s] %s/ /", keyringPath, baseURL)
+
+			progressChan <- InstallProgressMsg{
+				Phase:       PhaseSystemPackages,
+				Progress:    0.20,
+				Step:        fmt.Sprintf("Adding OBS repository %s...", pkg.RepoURL),
+				NeedsSudo:   true,
+				CommandInfo: fmt.Sprintf("echo '%s' | sudo tee %s", repoLine, listFile),
+			}
+
+			addRepoCmd := ExecSudoCommand(ctx, sudoPassword,
+				fmt.Sprintf("echo '%s' | tee %s", repoLine, listFile))
+			if err := d.runWithProgress(addRepoCmd, progressChan, PhaseSystemPackages, 0.20, 0.22); err != nil {
+				return fmt.Errorf("failed to add OBS repo %s: %w", pkg.RepoURL, err)
+			}
+
+			enabledRepos[pkg.RepoURL] = true
+			d.log(fmt.Sprintf("OBS repo %s enabled successfully", pkg.RepoURL))
+		}
+	}
+
+	if len(enabledRepos) > 0 {
+		progressChan <- InstallProgressMsg{
+			Phase:       PhaseSystemPackages,
+			Progress:    0.25,
+			Step:        "Updating package lists...",
+			NeedsSudo:   true,
+			CommandInfo: "sudo apt-get update",
+		}
+
+		updateCmd := ExecSudoCommand(ctx, sudoPassword, "apt-get update")
+		if err := d.runWithProgress(updateCmd, progressChan, PhaseSystemPackages, 0.25, 0.27); err != nil {
+			return fmt.Errorf("failed to update package lists after adding OBS repos: %w", err)
+		}
+	}
+
+	return nil
 }
 
 func (d *DebianDistribution) installAPTPackages(ctx context.Context, packages []string, sudoPassword string, progressChan chan<- InstallProgressMsg) error {
@@ -494,30 +646,6 @@ func (d *DebianDistribution) installGo(ctx context.Context, sudoPassword string,
 	return d.runWithProgress(installCmd, progressChan, PhaseSystemPackages, 0.87, 0.90)
 }
 
-func (d *DebianDistribution) installGhosttyDebian(ctx context.Context, sudoPassword string, progressChan chan<- InstallProgressMsg) error {
-	d.log("Installing Ghostty using Debian installer script...")
-
-	progressChan <- InstallProgressMsg{
-		Phase:       PhaseSystemPackages,
-		Progress:    0.1,
-		Step:        "Running Ghostty Debian installer...",
-		IsComplete:  false,
-		NeedsSudo:   true,
-		CommandInfo: "curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh | sudo bash",
-		LogOutput:   "Installing Ghostty using pre-built Debian package",
-	}
-
-	installCmd := ExecSudoCommand(ctx, sudoPassword,
-		"/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)\"")
-
-	if err := d.runWithProgress(installCmd, progressChan, PhaseSystemPackages, 0.1, 0.9); err != nil {
-		return fmt.Errorf("failed to install Ghostty: %w", err)
-	}
-
-	d.log("Ghostty installed successfully using Debian installer")
-	return nil
-}
-
 func (d *DebianDistribution) InstallManualPackages(ctx context.Context, packages []string, variantMap map[string]deps.PackageVariant, sudoPassword string, progressChan chan<- InstallProgressMsg) error {
 	if len(packages) == 0 {
 		return nil
@@ -527,10 +655,6 @@ func (d *DebianDistribution) InstallManualPackages(ctx context.Context, packages
 
 	for _, pkg := range packages {
 		switch pkg {
-		case "ghostty":
-			if err := d.installGhosttyDebian(ctx, sudoPassword, progressChan); err != nil {
-				return fmt.Errorf("failed to install ghostty: %w", err)
-			}
 		default:
 			if err := d.ManualPackageInstaller.InstallManualPackages(ctx, []string{pkg}, variantMap, sudoPassword, progressChan); err != nil {
 				return fmt.Errorf("failed to install %s: %w", pkg, err)

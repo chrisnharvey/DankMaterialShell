@@ -10,6 +10,7 @@ FloatingWindow {
 
     property alias profileBrowser: profileBrowser
     property alias wallpaperBrowser: wallpaperBrowser
+    property alias sidebar: sidebar
     property int currentTabIndex: 0
     property bool shouldHaveFocus: visible
     property bool allowFocusOverride: false
@@ -32,6 +33,23 @@ FloatingWindow {
         visible = !visible;
     }
 
+    function showWithTab(tabIndex: int) {
+        if (tabIndex >= 0)
+            currentTabIndex = tabIndex;
+        visible = true;
+    }
+
+    function showWithTabName(tabName: string) {
+        var idx = sidebar.resolveTabIndex(tabName);
+        if (idx >= 0)
+            currentTabIndex = idx;
+        visible = true;
+    }
+
+    function resolveTabIndex(tabName: string): int {
+        return sidebar.resolveTabIndex(tabName);
+    }
+
     function toggleMenu() {
         enableAnimations = true;
         menuVisible = !menuVisible;
@@ -41,7 +59,7 @@ FloatingWindow {
     title: I18n.tr("Settings", "settings window title")
     minimumSize: Qt.size(500, 400)
     implicitWidth: 800
-    implicitHeight: 800
+    implicitHeight: 940
     color: Theme.withAlpha(Theme.surfaceContainer, Theme.popupTransparency)
     visible: false
 
@@ -64,6 +82,15 @@ FloatingWindow {
                     contentFocusScope.forceActiveFocus();
                 }
             });
+        }
+    }
+
+    Loader {
+        active: settingsModal.visible
+        sourceComponent: Component {
+            Ref {
+                service: CupsService
+            }
         }
     }
 
@@ -112,29 +139,18 @@ FloatingWindow {
         focus: true
 
         Keys.onPressed: event => {
-            const tabCount = 12;
             if (event.key === Qt.Key_Escape) {
                 hide();
                 event.accepted = true;
                 return;
             }
-            if (event.key === Qt.Key_Down) {
-                currentTabIndex = (currentTabIndex + 1) % tabCount;
+            if (event.key === Qt.Key_Down || (event.key === Qt.Key_Tab && !event.modifiers)) {
+                sidebar.navigateNext();
                 event.accepted = true;
                 return;
             }
-            if (event.key === Qt.Key_Up) {
-                currentTabIndex = (currentTabIndex - 1 + tabCount) % tabCount;
-                event.accepted = true;
-                return;
-            }
-            if (event.key === Qt.Key_Tab && !event.modifiers) {
-                currentTabIndex = (currentTabIndex + 1) % tabCount;
-                event.accepted = true;
-                return;
-            }
-            if (event.key === Qt.Key_Backtab || (event.key === Qt.Key_Tab && event.modifiers & Qt.ShiftModifier)) {
-                currentTabIndex = (currentTabIndex - 1 + tabCount) % tabCount;
+            if (event.key === Qt.Key_Up || event.key === Qt.Key_Backtab || (event.key === Qt.Key_Tab && event.modifiers & Qt.ShiftModifier)) {
+                sidebar.navigatePrevious();
                 event.accepted = true;
                 return;
             }

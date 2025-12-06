@@ -51,7 +51,7 @@ var SPEC = {
     controlCenterShowNetworkIcon: { def: true },
     controlCenterShowBluetoothIcon: { def: true },
     controlCenterShowAudioIcon: { def: true },
-    controlCenterShowVpnIcon: { def: false },
+    controlCenterShowVpnIcon: { def: true },
     controlCenterShowBrightnessIcon: { def: false },
     controlCenterShowMicIcon: { def: false },
     controlCenterShowBatteryIcon: { def: false },
@@ -83,12 +83,14 @@ var SPEC = {
     dwlShowAllTags: { def: false },
     workspaceNameIcons: { def: {} },
     waveProgressEnabled: { def: true },
+    scrollTitleEnabled: {def: true},
     clockCompactMode: { def: false },
     focusedWindowCompactMode: { def: false },
     runningAppsCompactMode: { def: true },
     keyboardLayoutNameCompactMode: { def: false },
     runningAppsCurrentWorkspace: { def: false },
     runningAppsGroupByApp: { def: false },
+    centeringMode: { def: "index" },
     clockDateFormat: { def: "" },
     lockDateFormat: { def: "" },
     mediaSize: { def: 1 },
@@ -98,6 +100,7 @@ var SPEC = {
     sortAppsAlphabetically: { def: false },
     appLauncherGridColumns: { def: 4 },
     spotlightCloseNiriOverview: { def: true },
+    niriOverviewOverlayEnabled: { def: true },
 
     weatherLocation: { def: "New York, NY" },
     weatherCoordinates: { def: "40.7128,-74.0060" },
@@ -144,10 +147,12 @@ var SPEC = {
     acLockTimeout: { def: 0 },
     acSuspendTimeout: { def: 0 },
     acSuspendBehavior: { def: 0 },
+    acProfileName: { def: "" },
     batteryMonitorTimeout: { def: 0 },
     batteryLockTimeout: { def: 0 },
     batterySuspendTimeout: { def: 0 },
     batterySuspendBehavior: { def: 0 },
+    batteryProfileName: { def: "" },
     lockBeforeSuspend: { def: false },
     preventIdleForMedia: { def: false },
     loginctlLockIntegration: { def: true },
@@ -175,6 +180,10 @@ var SPEC = {
     dockMargin: { def: 0 },
     dockIconSize: { def: 40 },
     dockIndicatorStyle: { def: "circle" },
+    dockBorderEnabled: { def: false },
+    dockBorderColor: { def: "surfaceText" },
+    dockBorderOpacity: { def: 1.0, coerce: percentToUnit },
+    dockBorderThickness: { def: 1 },
 
     notificationOverlayEnabled: { def: false },
     overviewRows: { def: 2, persist: false },
@@ -187,6 +196,8 @@ var SPEC = {
     enableFprint: { def: false },
     maxFprintTries: { def: 3 },
     fprintdAvailable: { def: false, persist: false },
+    lockScreenActiveMonitor: { def: "all" },
+    lockScreenInactiveColor: { def: "#000000" },
     hideBrightnessSlider: { def: false },
 
     notificationTimeoutLow: { def: 5000 },
@@ -203,9 +214,10 @@ var SPEC = {
     osdMicMuteEnabled: { def: true },
     osdCapsLockEnabled: { def: true },
     osdPowerProfileEnabled: { def: false },
+    osdAudioOutputEnabled: { def: true },
 
     powerActionConfirm: { def: true },
-    powerActionHoldDuration: { def: 1 },
+    powerActionHoldDuration: { def: 0.5 },
     powerMenuActions: { def: ["reboot", "logout", "poweroff", "lock", "suspend", "restart"] },
     powerMenuDefaultAction: { def: "logout" },
     powerMenuGridLayout: { def: false },
@@ -258,7 +270,8 @@ var SPEC = {
         openOnOverview: false,
         visible: true,
         popupGapsAuto: true,
-        popupGapsManual: 4
+        popupGapsManual: 4,
+        maximizeDetection: true
     }], onChange: "updateBarConfigs" }
 };
 

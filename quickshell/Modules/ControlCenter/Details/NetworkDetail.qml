@@ -69,8 +69,8 @@ Rectangle {
         height: 40
 
         StyledText {
-            id: headerText
-            text: I18n.tr("Network Settings")
+            id: headerLeft
+            text: I18n.tr("Network")
             font.pixelSize: Theme.fontSizeLarge
             color: Theme.surfaceText
             font.weight: Font.Medium
@@ -79,7 +79,7 @@ Rectangle {
 
         Item {
             height: 1
-            width: parent.width - headerText.width - rightControls.width
+            width: parent.width - headerLeft.width - rightControls.width
         }
 
         Row {
@@ -115,6 +115,8 @@ Rectangle {
                 id: preferenceControls
                 anchors.verticalCenter: parent.verticalCenter
                 visible: NetworkService.backend === "networkmanager" && DMSService.apiVersion > 10
+                buttonHeight: 28
+                textSize: Theme.fontSizeSmall
 
                 model: ["Ethernet", "WiFi"]
                 currentIndex: currentPreferenceIndex
@@ -123,6 +125,18 @@ Rectangle {
                     if (!selected)
                         return;
                     NetworkService.setNetworkPreference(index === 0 ? "ethernet" : "wifi");
+                }
+            }
+
+            DankActionButton {
+                anchors.verticalCenter: parent.verticalCenter
+                iconName: "settings"
+                buttonSize: 28
+                iconSize: 16
+                iconColor: Theme.surfaceVariantText
+                onClicked: {
+                    PopoutService.closeControlCenter();
+                    PopoutService.openSettingsWithTab("network");
                 }
             }
         }
@@ -439,6 +453,34 @@ Rectangle {
 
         property var frozenNetworks: []
         property bool menuOpen: false
+        property var sortedNetworks: {
+            const ssid = NetworkService.currentWifiSSID;
+            const networks = NetworkService.wifiNetworks;
+            const pins = SettingsData.wifiNetworkPins || {};
+            const pinnedSSID = pins["preferredWifi"];
+
+            let sorted = [...networks];
+            sorted.sort((a, b) => {
+                if (a.ssid === pinnedSSID && b.ssid !== pinnedSSID)
+                    return -1;
+                if (b.ssid === pinnedSSID && a.ssid !== pinnedSSID)
+                    return 1;
+                if (a.ssid === ssid)
+                    return -1;
+                if (b.ssid === ssid)
+                    return 1;
+                return b.signal - a.signal;
+            });
+            return sorted;
+        }
+        onSortedNetworksChanged: {
+            if (!menuOpen)
+                frozenNetworks = sortedNetworks;
+        }
+        onMenuOpenChanged: {
+            if (menuOpen)
+                frozenNetworks = sortedNetworks;
+        }
 
         Column {
             id: wifiColumn
@@ -468,32 +510,7 @@ Rectangle {
 
             Repeater {
                 model: ScriptModel {
-                    values: {
-                        const ssid = NetworkService.currentWifiSSID;
-                        const networks = NetworkService.wifiNetworks;
-                        const pins = SettingsData.wifiNetworkPins || {};
-                        const pinnedSSID = pins["preferredWifi"];
-
-                        let sorted = [...networks];
-                        sorted.sort((a, b) => {
-                            // Pinned network first
-                            if (a.ssid === pinnedSSID && b.ssid !== pinnedSSID)
-                                return -1;
-                            if (b.ssid === pinnedSSID && a.ssid !== pinnedSSID)
-                                return 1;
-                            // Then currently connected
-                            if (a.ssid === ssid)
-                                return -1;
-                            if (b.ssid === ssid)
-                                return 1;
-                            // Then by signal strength
-                            return b.signal - a.signal;
-                        });
-                        if (!wifiContent.menuOpen) {
-                            wifiContent.frozenNetworks = sorted;
-                        }
-                        return wifiContent.menuOpen ? wifiContent.frozenNetworks : sorted;
-                    }
+                    values: wifiContent.menuOpen ? wifiContent.frozenNetworks : wifiContent.sortedNetworks
                 }
 
                 delegate: Rectangle {

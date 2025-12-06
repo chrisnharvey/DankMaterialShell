@@ -355,10 +355,10 @@ Rectangle {
 
                             StyledText {
                                 text: {
-                                    const mediaName = modelData && modelData.properties ? (modelData.properties["media.name"] || "") : "";
-                                    const max = 30;
-                                    const truncated = mediaName.length > max ? mediaName.substring(0, max) + "..." : mediaName;
-                                    return AudioService.displayName(modelData) + (truncated ? ": " + truncated : "");
+                                    const modelDataMediaName = modelData && modelData.properties ? (modelData.properties["media.name"] || "") : "";
+                                    const mediaName = AudioService.displayName(modelData) + ": " + modelDataMediaName;
+                                    const max = 35;
+                                    return mediaName.length > max ? mediaName.substring(0, max) + "..." : mediaName;
                                 }
                                 font.pixelSize: Theme.fontSizeMedium
                                 color: Theme.surfaceText
@@ -402,9 +402,8 @@ Rectangle {
                                     cursorShape: Qt.PointingHandCursor
                                     onClicked: {
                                         if (modelData) {
-                                            AudioService.suppressOSD = true;
+                                            SessionData.suppressOSDTemporarily();
                                             modelData.audio.muted = !modelData.audio.muted;
-                                            AudioService.suppressOSD = false;
                                         }
                                     }
                                 }
@@ -446,18 +445,9 @@ Rectangle {
                                 thumbOutlineColor: Theme.surfaceContainer
                                 trackColor: appVolumeRow.sliderTrackColor.a > 0 ? appVolumeRow.sliderTrackColor : Theme.withAlpha(Theme.surfaceContainerHigh, Theme.popupTransparency)
 
-                                onIsDraggingChanged: {
-                                    if (isDragging) {
-                                        AudioService.suppressOSD = true;
-                                    } else {
-                                        Qt.callLater(() => {
-                                            AudioService.suppressOSD = false;
-                                        });
-                                    }
-                                }
-
                                 onSliderValueChanged: function (newValue) {
                                     if (modelData) {
+                                        SessionData.suppressOSDTemporarily();
                                         modelData.audio.volume = newValue / 100.0;
                                         if (newValue > 0 && modelData.audio.muted) {
                                             modelData.audio.muted = false;

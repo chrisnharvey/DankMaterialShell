@@ -45,8 +45,17 @@ override_dh_auto_install:
 	rm -rf debian/dms/usr/share/quickshell/dms/distro
 
 	# Install systemd user service
-	install -Dm644 DankMaterialShell-$(BASE_VERSION)/quickshell/assets/systemd/dms.service \
+	install -Dm644 DankMaterialShell-$(BASE_VERSION)/assets/systemd/dms.service \
 		debian/dms/usr/lib/systemd/user/dms.service
+
+	# Install desktop file and icon
+	install -Dm644 DankMaterialShell-$(BASE_VERSION)/assets/dms-open.desktop \
+		debian/dms/usr/share/applications/dms-open.desktop
+	install -Dm644 DankMaterialShell-$(BASE_VERSION)/assets/danklogo.svg \
+		debian/dms/usr/share/icons/hicolor/scalable/apps/danklogo.svg
+
+	# Create VERSION file for Quickshell (stable release format)
+	echo "$(BASE_VERSION)" > debian/dms/usr/share/quickshell/dms/VERSION
 
 	# Generate and install shell completions (if applicable)
 	# Uncomment if dms supports completion generation

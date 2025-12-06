@@ -105,7 +105,7 @@ Singleton {
     property bool controlCenterShowNetworkIcon: true
     property bool controlCenterShowBluetoothIcon: true
     property bool controlCenterShowAudioIcon: true
-    property bool controlCenterShowVpnIcon: false
+    property bool controlCenterShowVpnIcon: true
     property bool controlCenterShowBrightnessIcon: false
     property bool controlCenterShowMicIcon: false
     property bool controlCenterShowBatteryIcon: false
@@ -168,21 +168,26 @@ Singleton {
     property bool dwlShowAllTags: false
     property var workspaceNameIcons: ({})
     property bool waveProgressEnabled: true
+    property bool scrollTitleEnabled: true
     property bool clockCompactMode: false
     property bool focusedWindowCompactMode: false
     property bool runningAppsCompactMode: true
     property bool keyboardLayoutNameCompactMode: false
     property bool runningAppsCurrentWorkspace: false
     property bool runningAppsGroupByApp: false
+    property string centeringMode: "index"
     property string clockDateFormat: ""
     property string lockDateFormat: ""
     property int mediaSize: 1
 
     property string appLauncherViewMode: "list"
     property string spotlightModalViewMode: "list"
+    property string browserPickerViewMode: "grid"
+    property var browserUsageHistory: ({})
     property bool sortAppsAlphabetically: false
     property int appLauncherGridColumns: 4
     property bool spotlightCloseNiriOverview: true
+    property bool niriOverviewOverlayEnabled: true
 
     property string weatherLocation: "New York, NY"
     property string weatherCoordinates: "40.7128,-74.0060"
@@ -224,6 +229,7 @@ Singleton {
     onNotepadFontFamilyChanged: saveSettings()
     onNotepadFontSizeChanged: saveSettings()
     onNotepadShowLineNumbersChanged: saveSettings()
+    // onCenteringModeChanged: saveSettings()
     onNotepadTransparencyOverrideChanged: {
         if (notepadTransparencyOverride > 0) {
             notepadLastCustomTransparency = notepadTransparencyOverride;
@@ -242,10 +248,12 @@ Singleton {
     property int acLockTimeout: 0
     property int acSuspendTimeout: 0
     property int acSuspendBehavior: SettingsData.SuspendBehavior.Suspend
+    property string acProfileName: ""
     property int batteryMonitorTimeout: 0
     property int batteryLockTimeout: 0
     property int batterySuspendTimeout: 0
     property int batterySuspendBehavior: SettingsData.SuspendBehavior.Suspend
+    property string batteryProfileName: ""
     property bool lockBeforeSuspend: false
     property bool preventIdleForMedia: false
     property bool loginctlLockIntegration: true
@@ -273,6 +281,10 @@ Singleton {
     property real dockMargin: 0
     property real dockIconSize: 40
     property string dockIndicatorStyle: "circle"
+    property bool dockBorderEnabled: false
+    property string dockBorderColor: "surfaceText"
+    property real dockBorderOpacity: 1.0
+    property int dockBorderThickness: 1
 
     property bool notificationOverlayEnabled: false
     property int overviewRows: 2
@@ -285,6 +297,8 @@ Singleton {
     property bool enableFprint: false
     property int maxFprintTries: 3
     property bool fprintdAvailable: false
+    property string lockScreenActiveMonitor: "all"
+    property string lockScreenInactiveColor: "#000000"
     property bool hideBrightnessSlider: false
 
     property int notificationTimeoutLow: 5000
@@ -301,9 +315,10 @@ Singleton {
     property bool osdMicMuteEnabled: true
     property bool osdCapsLockEnabled: true
     property bool osdPowerProfileEnabled: true
+    property bool osdAudioOutputEnabled: true
 
     property bool powerActionConfirm: true
-    property int powerActionHoldDuration: 1
+    property real powerActionHoldDuration: 0.5
     property var powerMenuActions: ["reboot", "logout", "poweroff", "lock", "suspend", "restart"]
     property string powerMenuDefaultAction: "logout"
     property bool powerMenuGridLayout: false
@@ -357,7 +372,8 @@ Singleton {
             openOnOverview: false,
             visible: true,
             popupGapsAuto: true,
-            popupGapsManual: 4
+            popupGapsManual: 4,
+            maximizeDetection: true
         }
     ]
 
@@ -1390,27 +1406,4 @@ rm -rf '${home}'/.cache/icon-cache '${home}'/.cache/thumbnails 2>/dev/null || tr
     }
 
     property bool pluginSettingsFileExists: false
-
-    IpcHandler {
-        function reveal(): string {
-            root.setShowDock(true);
-            return "DOCK_SHOW_SUCCESS";
-        }
-
-        function hide(): string {
-            root.setShowDock(false);
-            return "DOCK_HIDE_SUCCESS";
-        }
-
-        function toggle(): string {
-            root.toggleShowDock();
-            return root.showDock ? "DOCK_SHOW_SUCCESS" : "DOCK_HIDE_SUCCESS";
-        }
-
-        function status(): string {
-            return root.showDock ? "visible" : "hidden";
-        }
-
-        target: "dock"
-    }
 }

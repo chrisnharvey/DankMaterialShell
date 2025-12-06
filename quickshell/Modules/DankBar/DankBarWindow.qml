@@ -140,11 +140,38 @@ PanelWindow {
     property real wingtipsRadius: barConfig?.gothCornerRadiusOverride ? (barConfig?.gothCornerRadiusValue ?? 12) : Theme.cornerRadius
     readonly property real _wingR: Math.max(0, wingtipsRadius)
     readonly property color _surfaceContainer: Theme.surfaceContainer
-    readonly property real _backgroundAlpha: topBarCore?.backgroundTransparency ?? (barConfig?.transparency ?? 1.0)
+    readonly property string _barId: barConfig?.id ?? "default"
+    readonly property var _liveBarConfig: SettingsData.barConfigs.find(c => c.id === _barId) || barConfig
+    readonly property real _backgroundAlpha: _liveBarConfig?.transparency ?? 1.0
     readonly property color _bgColor: Theme.withAlpha(_surfaceContainer, _backgroundAlpha)
     readonly property real _dpr: CompositorService.getScreenScale(barWindow.screen)
 
     property string screenName: modelData.name
+
+    readonly property bool hasMaximizedToplevel: {
+        if (!(barConfig?.maximizeDetection ?? true))
+            return false;
+        if (!CompositorService.isHyprland && !CompositorService.isNiri)
+            return false;
+
+        const filtered = CompositorService.filterCurrentWorkspace(CompositorService.sortedToplevels, screenName);
+        for (let i = 0; i < filtered.length; i++) {
+            if (filtered[i]?.maximized)
+                return true;
+        }
+        return false;
+    }
+
+    property real effectiveSpacing: hasMaximizedToplevel ? 0 : (barConfig?.spacing ?? 4)
+
+    Behavior on effectiveSpacing {
+        enabled: barWindow.visible
+        NumberAnimation {
+            duration: Theme.shortDuration
+            easing.type: Easing.OutCubic
+        }
+    }
+
     readonly property int notificationCount: NotificationService.notifications.length
     readonly property real effectiveBarThickness: Math.max(barWindow.widgetThickness + (barConfig?.innerPadding ?? 4) + 4, Theme.barHeight - 4 - (8 - (barConfig?.innerPadding ?? 4)))
     readonly property real widgetThickness: Math.max(20, 26 + (barConfig?.innerPadding ?? 4) * 0.6)
@@ -245,8 +272,8 @@ PanelWindow {
     }
 
     screen: modelData
-    implicitHeight: !isVertical ? Theme.px(effectiveBarThickness + (barConfig?.spacing ?? 4) + ((barConfig?.gothCornersEnabled ?? false) ? _wingR : 0), _dpr) : 0
-    implicitWidth: isVertical ? Theme.px(effectiveBarThickness + (barConfig?.spacing ?? 4) + ((barConfig?.gothCornersEnabled ?? false) ? _wingR : 0), _dpr) : 0
+    implicitHeight: !isVertical ? Theme.px(effectiveBarThickness + effectiveSpacing + ((barConfig?.gothCornersEnabled ?? false) && !hasMaximizedToplevel ? _wingR : 0), _dpr) : 0
+    implicitWidth: isVertical ? Theme.px(effectiveBarThickness + effectiveSpacing + ((barConfig?.gothCornersEnabled ?? false) && !hasMaximizedToplevel ? _wingR : 0), _dpr) : 0
     color: "transparent"
 
     property var nativeInhibitor: null
@@ -357,7 +384,6 @@ PanelWindow {
         target: SessionData
     }
 
-
     readonly property int barPos: barConfig?.position ?? 0
 
     anchors.top: !isVertical ? (barPos === SettingsData.Position.Top) : true
@@ -365,12 +391,12 @@ PanelWindow {
     anchors.left: !isVertical ? true : (barPos === SettingsData.Position.Left)
     anchors.right: !isVertical ? true : (barPos === SettingsData.Position.Right)
 
-    exclusiveZone: (!(barConfig?.visible ?? true) || topBarCore.autoHide) ? -1 : (barWindow.effectiveBarThickness + (barConfig?.spacing ?? 4) + (barConfig?.bottomGap ?? 0))
+    exclusiveZone: (!(barConfig?.visible ?? true) || topBarCore.autoHide) ? -1 : (barWindow.effectiveBarThickness + effectiveSpacing + (barConfig?.bottomGap ?? 0))
 
     Item {
         id: inputMask
 
-        readonly property int barThickness: Theme.px(barWindow.effectiveBarThickness + (barConfig?.spacing ?? 4), barWindow._dpr)
+        readonly property int barThickness: Theme.px(barWindow.effectiveBarThickness + barWindow.effectiveSpacing, barWindow._dpr)
 
         readonly property bool inOverviewWithShow: CompositorService.isNiri && NiriService.inOverview && (barConfig?.openOnOverview ?? false)
         readonly property bool effectiveVisible: (barConfig?.visible ?? true) || inOverviewWithShow
@@ -419,7 +445,6 @@ PanelWindow {
         anchors.fill: parent
         layer.enabled: true
 
-        property real backgroundTransparency: barConfig?.transparency ?? 1.0
         property bool autoHide: barConfig?.autoHide ?? false
         property bool revealSticky: false
 
@@ -471,7 +496,6 @@ PanelWindow {
 
         Connections {
             function onBarConfigChanged() {
-                topBarCore.backgroundTransparency = barConfig?.transparency ?? 1.0;
                 topBarCore.autoHide = barConfig?.autoHide ?? false;
                 revealHold.interval = barConfig?.autoHideDelay ?? 250;
             }
@@ -510,8 +534,8 @@ PanelWindow {
             id: topBarMouseArea
             y: !barWindow.isVertical ? (barPos === SettingsData.Position.Bottom ? parent.height - height : 0) : 0
             x: barWindow.isVertical ? (barPos === SettingsData.Position.Right ? parent.width - width : 0) : 0
-            height: !barWindow.isVertical ? Theme.px(barWindow.effectiveBarThickness + (barConfig?.spacing ?? 4), barWindow._dpr) : undefined
-            width: barWindow.isVertical ? Theme.px(barWindow.effectiveBarThickness + (barConfig?.spacing ?? 4), barWindow._dpr) : undefined
+            height: !barWindow.isVertical ? Theme.px(barWindow.effectiveBarThickness + barWindow.effectiveSpacing, barWindow._dpr) : undefined
+            width: barWindow.isVertical ? Theme.px(barWindow.effectiveBarThickness + barWindow.effectiveSpacing, barWindow._dpr) : undefined
             anchors {
                 left: !barWindow.isVertical ? parent.left : (barPos === SettingsData.Position.Left ? parent.left : undefined)
                 right: !barWindow.isVertical ? parent.right : (barPos === SettingsData.Position.Right ? parent.right : undefined)
@@ -549,7 +573,7 @@ PanelWindow {
 
                 Item {
                     id: barUnitInset
-                    property int spacingPx: Theme.px(barConfig?.spacing ?? 4, barWindow._dpr)
+                    property int spacingPx: Theme.px(barWindow.effectiveSpacing, barWindow._dpr)
                     anchors.fill: parent
                     anchors.leftMargin: !barWindow.isVertical ? spacingPx : (axis.edge === "left" ? spacingPx : 0)
                     anchors.rightMargin: !barWindow.isVertical ? spacingPx : (axis.edge === "right" ? spacingPx : 0)
